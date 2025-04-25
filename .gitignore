@@ -1,43 +1,17 @@
-# Node.js dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Server and client node_modules
+server/node_modules/
+client/node_modules/
+
+# Environment files
+server/.env
+client/.env
+
+# macOS files
+.DS_Store
 
 # Logs
-logs/
 *.log
-*.log.*
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Build output
-dist/
-build/
-out/
-
-# Dependency directories
-bower_components/
-
-# IDE files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
-# Git files
-*.orig
-
-# Temporary files
-*.tmp
-*.temp
+# Build folders (optional)
+client/build/
+server/dist/
