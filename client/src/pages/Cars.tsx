@@ -1,0 +1,181 @@
+import React, { useState } from 'react';
+import { Plus, Edit2, Trash2, X } from 'lucide-react';
+
+interface Car {
+  id: number;
+  make: string;
+  model: string;
+  year: number;
+  dailyRate: number;
+  image: string;
+  available: boolean;
+}
+
+function Cars() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Mock data - replace with API call
+  const cars: Car[] = [
+    {
+      id: 1,
+      make: 'Tesla',
+      model: 'Model 3',
+      year: 2023,
+      dailyRate: 150,
+      image: 'https://images.unsplash.com/photo-1536700503339-1e4b06520771?auto=format&fit=crop&q=80&w=500',
+      available: true
+    },
+    {
+      id: 2,
+      make: 'BMW',
+      model: 'X5',
+      year: 2024,
+      dailyRate: 200,
+      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=500',
+      available: false
+    },
+  ];
+
+  const [newCar, setNewCar] = useState({
+    make: '',
+    model: '',
+    year: new Date().getFullYear(),
+    dailyRate: 0,
+    image: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle form submission
+    setIsModalOpen(false);
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">Cars</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add New Car
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cars.map((car) => (
+          <div key={car.id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+            <div className="relative h-48">
+              <img
+                src={car.image}
+                alt={`${car.make} ${car.model}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-2 right-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  car.available 
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {car.available ? 'Available' : 'Rented'}
+                </span>
+              </div>
+            </div>
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-gray-900">{car.make} {car.model}</h3>
+              <p className="text-gray-600">{car.year}</p>
+              <p className="text-primary-600 font-semibold mt-2">${car.dailyRate}/day</p>
+              <div className="mt-4 flex space-x-2">
+                <button className="flex items-center px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+                  <Edit2 className="h-4 w-4 mr-1" />
+                  Edit
+                </button>
+                <button className="flex items-center px-3 py-1.5 text-sm border border-red-300 text-red-600 rounded-md hover:bg-red-50">
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add/Edit Car Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">Add New Car</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-500">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div>
+                <label htmlFor="make" className="block text-sm font-medium text-gray-700">Make</label>
+                <input
+                  type="text"
+                  id="make"
+                  value={newCar.make}
+                  onChange={(e) => setNewCar({ ...newCar, make: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="model" className="block text-sm font-medium text-gray-700">Model</label>
+                <input
+                  type="text"
+                  id="model"
+                  value={newCar.model}
+                  onChange={(e) => setNewCar({ ...newCar, model: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="year" className="block text-sm font-medium text-gray-700">Year</label>
+                <input
+                  type="number"
+                  id="year"
+                  value={newCar.year}
+                  onChange={(e) => setNewCar({ ...newCar, year: parseInt(e.target.value) })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="dailyRate" className="block text-sm font-medium text-gray-700">Daily Rate ($)</label>
+                <input
+                  type="number"
+                  id="dailyRate"
+                  value={newCar.dailyRate}
+                  onChange={(e) => setNewCar({ ...newCar, dailyRate: parseInt(e.target.value) })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
+                <input
+                  type="url"
+                  id="image"
+                  value={newCar.image}
+                  onChange={(e) => setNewCar({ ...newCar, image: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                />
+              </div>
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  className="w-full px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Add Car
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Cars;
