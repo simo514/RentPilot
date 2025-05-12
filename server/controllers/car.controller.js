@@ -59,6 +59,20 @@ const carController = {
             res.status(500).json({ error: err.message });
         }
     },
+    // Update car details
+    updateCar: async (req, res) => {
+        try {
+            const updated = await Car.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
+            if (!updated) return res.status(404).json({ message: 'Car not found' });
+            res.json(updated);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
 };
 
 export default carController;
