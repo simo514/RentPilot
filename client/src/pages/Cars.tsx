@@ -6,7 +6,7 @@ interface Car {
   make: string;
   model: string;
   year: number;
-  dailyRate: number;
+  matricule: string;
   image: string;
   available: boolean;
 }
@@ -21,7 +21,7 @@ function Cars() {
       make: 'Tesla',
       model: 'Model 3',
       year: 2023,
-      dailyRate: 150,
+      matricule: 'ABC123',
       image: 'https://images.unsplash.com/photo-1536700503339-1e4b06520771?auto=format&fit=crop&q=80&w=500',
       available: true
     },
@@ -30,7 +30,7 @@ function Cars() {
       make: 'BMW',
       model: 'X5',
       year: 2024,
-      dailyRate: 200,
+      matricule: 'XYZ456',
       image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=500',
       available: false
     },
@@ -40,7 +40,7 @@ function Cars() {
     make: '',
     model: '',
     year: new Date().getFullYear(),
-    dailyRate: 0,
+    matricule: '',
     image: ''
   });
 
@@ -85,7 +85,7 @@ function Cars() {
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-900">{car.make} {car.model}</h3>
               <p className="text-gray-600">{car.year}</p>
-              <p className="text-primary-600 font-semibold mt-2">${car.dailyRate}/day</p>
+              <p className="text-primary-600 font-semibold mt-2">{car.matricule}</p>
               <div className="mt-4 flex space-x-2">
                 <button className="flex items-center px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
                   <Edit2 className="h-4 w-4 mr-1" />
@@ -143,25 +143,34 @@ function Cars() {
                 />
               </div>
               <div>
-                <label htmlFor="dailyRate" className="block text-sm font-medium text-gray-700">Daily Rate ($)</label>
+                <label htmlFor="matricule" className="block text-sm font-medium text-gray-700">Matricule</label>
                 <input
                   type="number"
-                  id="dailyRate"
-                  value={newCar.dailyRate}
-                  onChange={(e) => setNewCar({ ...newCar, dailyRate: parseInt(e.target.value) })}
+                  id="matricule"
+                  value={newCar.matricule}
+                  onChange={(e) => setNewCar({ ...newCar, matricule: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 />
               </div>
               <div>
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
-                <input
-                  type="url"
-                  id="image"
-                  value={newCar.image}
-                  onChange={(e) => setNewCar({ ...newCar, image: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                />
-              </div>
+  <label htmlFor="image" className="block text-sm font-medium text-gray-700">Car Image</label>
+  <input
+    type="file"
+    id="image"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewCar({ ...newCar, image: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+      }
+    }}
+    className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+  />
+</div>
               <div className="pt-4">
                 <button
                   type="submit"
