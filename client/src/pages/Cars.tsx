@@ -1,40 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import useCarStore from '../store/carStore';
 
-interface Car {
-  id: number;
-  make: string;
-  model: string;
-  year: number;
-  matricule: string;
-  image: string;
-  available: boolean;
-}
 
 function Cars() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Mock data - replace with API call
-  const cars: Car[] = [
-    {
-      id: 1,
-      make: 'Tesla',
-      model: 'Model 3',
-      year: 2023,
-      matricule: 'ABC123',
-      image: 'https://images.unsplash.com/photo-1536700503339-1e4b06520771?auto=format&fit=crop&q=80&w=500',
-      available: true
-    },
-    {
-      id: 2,
-      make: 'BMW',
-      model: 'X5',
-      year: 2024,
-      matricule: 'XYZ456',
-      image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=500',
-      available: false
-    },
-  ];
+  const { cars, fetchCars, loading, error } = useCarStore();
+
+  useEffect(() => {
+    fetchCars();
+  }, []);
+
 
   const [newCar, setNewCar] = useState({
     make: '',
@@ -65,7 +41,7 @@ function Cars() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cars.map((car) => (
-          <div key={car.id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+          <div key={car._id} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
             <div className="relative h-48">
               <img
                 src={car.image}
