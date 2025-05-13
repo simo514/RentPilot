@@ -1,26 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Calendar, Car, User } from 'lucide-react';
+import useRentalHistoryStore from '../store/rentalHistoryStore';
 
 function RentalHistory() {
-  // Sample rental history data - in a real app, this would come from your backend
-  const rentals = [
-    {
-      id: 1,
-      client: "John Doe",
-      car: "Tesla Model 3",
-      startDate: "2024-01-15",
-      endDate: "2024-01-20",
-      status: "Completed"
-    },
-    {
-      id: 2,
-      client: "Jane Smith",
-      car: "BMW X5",
-      startDate: "2024-01-18",
-      endDate: "2024-01-25",
-      status: "Active"
-    }
-  ];
+
+  const { rentals, loading, error, fetchRentals } = useRentalHistoryStore();
+
+  useEffect(() => {
+    fetchRentals();
+    console.log(rentals);
+  }, [fetchRentals]);
 
   return (
     <div className="p-6">
@@ -40,29 +29,31 @@ function RentalHistory() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {rentals.map((rental) => (
-                <tr key={rental.id} className="hover:bg-gray-50">
+                <tr key={rental._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <User className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{rental.client}</span>
+                      <span className="text-sm text-gray-900">{rental.client.firstName} {rental.client.lastName}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Car className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{rental.car}</span>
+                      <span className="text-sm text-gray-900">{rental.car.make} {rental.car.model}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Calendar className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{rental.startDate}</span>
+                      <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.startDate))}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Calendar className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{rental.endDate}</span>
+                      <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.endDate))}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

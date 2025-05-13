@@ -6,7 +6,7 @@ import useCarStore from '../store/carStore';
 
 function Cars() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { cars, fetchCars, addCarAsync, updateCarAsync} = useCarStore();
+  const { cars, fetchCars, addCarAsync, updateCarAsync, deleteCarAsync} = useCarStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingCarId, setEditingCarId] = useState<string | null>(null);
 
@@ -51,15 +51,33 @@ function Cars() {
       console.error("Failed to save car:", error);
     }
   };
+  const handledelete = async (carId: string) => {
+    if (!window.confirm("Are you sure you want to delete this car?")) return;
+    try {
+    await deleteCarAsync(carId);
+    } catch (error) {
+      console.error("Failed to delete car:", error);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Cars</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
-        >
+        onClick={() => {
+        setIsModalOpen(true);
+        setNewCar({
+          make: '',
+          model: '',
+          year: '',
+          matricule: '',
+          image: '',
+          available: true,
+        }); // Reset the car state
+      }}
+  className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+>
           <Plus className="h-5 w-5 mr-2" />
           Add New Car
         </button>
@@ -108,7 +126,9 @@ function Cars() {
                   <Edit2 className="h-4 w-4 mr-1" />
                   Edit
                 </button>
-                <button className="flex items-center px-3 py-1.5 text-sm border border-red-300 text-red-600 rounded-md hover:bg-red-50">
+                <button 
+                onClick={() => {handledelete(car._id)}}
+                className="flex items-center px-3 py-1.5 text-sm border border-red-300 text-red-600 rounded-md hover:bg-red-50">
                   <Trash2 className="h-4 w-4 mr-1" />
                   Delete
                 </button>

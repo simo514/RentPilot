@@ -13,6 +13,7 @@ interface CarStore {
   addCarAsync: (car: Omit<Car, '_id'>) => Promise<void>;
   updateCarAvailability: (carId: string, available: boolean) => void;
   updateCarAsync: (id: string, updatedData: Partial<Car>) => Promise<void>; 
+  deleteCarAsync: (id: string) => Promise<void>;
 }
 
 const useCarStore = create<CarStore>((set) => ({
@@ -63,7 +64,16 @@ const useCarStore = create<CarStore>((set) => ({
         console.error('Failed to update car:', error);
       }
     },
-    
+  deleteCarAsync: async (id) => {
+    try {
+      await api.delete(`/api/cars/${id}`);
+      set((state) => ({
+        cars: state.cars.filter((car) => car._id !== id),
+      }));
+    } catch (error) {
+      console.error('Failed to delete car:', error);
+    }
+  }
 }));
 
 export default useCarStore;

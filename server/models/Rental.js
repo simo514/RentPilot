@@ -14,6 +14,7 @@ const rentalSchema = new mongoose.Schema({
   },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  status: { type: String, enum: ['active', 'completed'], default: 'active' },
   totalPrice: { type: Number, required: true },
   contractPath: String,
   createdAt: { type: Date, default: Date.now }
