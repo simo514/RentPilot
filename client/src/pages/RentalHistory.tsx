@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { Calendar, Car, User } from 'lucide-react';
+import { Calendar, Car, Eye, User } from 'lucide-react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
+import { useNavigate } from 'react-router-dom';
 
 function RentalHistory() {
-
+ 
+  const Navigate = useNavigate();
   const { rentals, loading, error, fetchRentals } = useRentalHistoryStore();
 
   useEffect(() => {
@@ -64,6 +66,13 @@ function RentalHistory() {
                     }`}>
                       {rental.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                   <button
+                   onClick={() => {Navigate(`/rental/${rental._id}`)}}
+                    className="text-primqry-600 hover:text-primary-900 tranistion-colors">
+                   <Eye className='h-5 w-5' />
+                   </button>
                   </td>
                 </tr>
               ))}
