@@ -14,6 +14,8 @@ export interface Car {
     startDate: string;
     endDate: string;
     status: string;
+    dailyRate: number;
+    totalPrice: number;
   }
 
   export interface Client {
