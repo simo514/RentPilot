@@ -7,7 +7,7 @@ function RentalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { currentRental: rental, loading, error, fetchRentalById } = useRentalHistoryStore();
+  const { currentRental: rental, loading, error, fetchRentalById, returnCar } = useRentalHistoryStore();
 
   useEffect(() => {
     if (id) {
@@ -35,6 +35,7 @@ function RentalDetails() {
     {rental.status === 'active' && (
       <button
         className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
+        onClick={() => {returnCar(rental._id); navigate('/rentals');}}
       >
         Return the car
       </button>
@@ -85,9 +86,9 @@ function RentalDetails() {
             <p className="text-gray-600">Total Amount: <span className="text-gray-900">${rental.totalPrice}</span></p>
             <p className="text-gray-600">Status: 
               <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                rental.status === 'Active' 
+                rental.status === 'active' 
                   ? 'bg-green-100 text-green-800' 
-                  : 'bg-gray-100 text-gray-800'
+                  : 'bg-yellow-100 text-gray-800'
               }`}>
                 {rental.status}
               </span>

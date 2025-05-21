@@ -17,6 +17,7 @@
     "react-dom": "^18.3.1",
     "react-file-base64": "^1.0.3",
     "react-router-dom": "^7.5.2",
+    "react-toastify": "^11.0.5",
     "zustand": "^5.0.4"
   },
   "devDependencies": {

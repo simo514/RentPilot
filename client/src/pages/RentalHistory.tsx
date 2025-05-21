@@ -19,18 +19,22 @@ function RentalHistory() {
       
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
+        <div className="max-h-[500px] overflow-y-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10">Client</th>
+            <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10">Car</th>
+            <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10">Start Date</th>
+            <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10">End Date</th>
+            <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10">Status</th>
+            <th className="sticky top-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider z-10"></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {rentals.map((rental) => (
+            {[...rentals]
+                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                .map((rental) => (
                 <tr key={rental._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -41,7 +45,10 @@ function RentalHistory() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Car className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{rental.car.make} {rental.car.model}</span>
+                      <span className="text-sm text-gray-900">
+                        {rental.car.make} {rental.car.model}
+                        <span className="block text-xs text-gray-500">{rental.car.matricule}</span> {/* Added matricule */}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -78,6 +85,7 @@ function RentalHistory() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>

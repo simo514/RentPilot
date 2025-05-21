@@ -11,7 +11,7 @@ export const createRentalSchema = Joi.object({
       'string.base': 'Last name must be a string',
     }),
     phone: Joi.string().optional(),
-    email: Joi.string().email().optional()
+    email: Joi.string().email().allow('').optional() 
   }).required().messages({
     'any.required': 'Client information is required'
   }),

@@ -24,3 +24,16 @@ export interface Car {
     phone?: string;
     email?: string;
   }
+
+  export interface RentalCreationData {
+    client: {
+      firstName: string;
+      lastName: string;
+      phone?: string;
+      email?: string;
+    };
+    carId: string;
+    startDate: string;
+    endDate: string;
+    dailyRate: number;
+  }

@@ -1,8 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PlusCircle, DollarSign, Calendar, Car } from 'lucide-react';
+import useRentalHistoryStore from '../store/rentalHistoryStore';
+import useCarStore from '../store/carStore';
+import { useEffect } from 'react';
+
+
 
 function Dashboard() {
+  const { fetchRentals, rentals } = useRentalHistoryStore();
+  const { fetchCars, cars } = useCarStore();
+
+    useEffect(() => {
+      fetchRentals();
+    }, [fetchRentals]);
+
+  useEffect(() => {
+    fetchCars();
+  }, [fetchCars]);
   // Mock data - replace with actual API calls
   const stats = {
     totalRentals: 24,
@@ -16,6 +31,8 @@ function Dashboard() {
     { id: 2, client: 'Jane Smith', car: 'BMW X5', startDate: '2024-03-02', endDate: '2024-03-07', price: 750 },
     // Add more mock data as needed
   ];
+
+  const lastFiveRentals = rentals.slice(-5); // Get the last 5 rentals
 
   return (
     <div className="space-y-6">
@@ -36,7 +53,7 @@ function Dashboard() {
             <Calendar className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Rentals</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalRentals}</p>
+              <p className="text-2xl font-semibold text-gray-900">{rentals.length}</p>
             </div>
           </div>
         </div>
@@ -56,7 +73,7 @@ function Dashboard() {
             <Calendar className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active Rentals</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.activeRentals}</p>
+              <p className="text-2xl font-semibold text-gray-900">{rentals.filter((rental) => rental.status=='active').length}</p>
             </div>
           </div>
         </div>
@@ -66,7 +83,9 @@ function Dashboard() {
             <Car className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Available Cars</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.availableCars}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {cars.filter((car) => car.available).length} {/* Dynamically show available cars */}
+              </p>
             </div>
           </div>
         </div>
@@ -87,13 +106,16 @@ function Dashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {recentRentals.map((rental) => (
-                  <tr key={rental.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.client}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.car}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.startDate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.endDate}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rental.price}</td>
+                {lastFiveRentals.map((rental) => (
+                  <tr key={rental._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.client.firstName} {rental.client.lastName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {rental.car.model} {rental.car.make}
+                      <span className="block text-xs text-gray-500">{rental.car.matricule}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(rental.startDate).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(rental.endDate).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rental.totalPrice}</td>
                   </tr>
                 ))}
               </tbody>

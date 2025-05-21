@@ -33,6 +33,7 @@ const rentalController = {
         car: car._id,
         startDate: start,
         endDate: end,
+        dailyRate,
         totalPrice
       });
 
