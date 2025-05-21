@@ -5,7 +5,7 @@ const rentalSchema = new mongoose.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     phone: String,
-    email: String
+    email: { type: String, required: false },
   },
   car: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,6 +14,8 @@ const rentalSchema = new mongoose.Schema({
   },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  status: { type: String, enum: ['active', 'completed'], default: 'active' },
+  dailyRate: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
   contractPath: String,
   createdAt: { type: Date, default: Date.now }

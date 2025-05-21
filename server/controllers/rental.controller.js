@@ -33,6 +33,7 @@ const rentalController = {
         car: car._id,
         startDate: start,
         endDate: end,
+        dailyRate,
         totalPrice
       });
 
@@ -71,25 +72,29 @@ const rentalController = {
   },
 
   // 4. Return a rental (mark car as available again)
-returnRental: async (req, res) => {
-  try {
-    const rental = await Rental.findById(req.params.id);
-    if (!rental) return res.status(404).json({ message: 'Rental not found' });
-
-    // Find the car
-    const car = await Car.findById(rental.car);
-    if (!car) return res.status(404).json({ message: 'Car not found' });
-
-    // Mark the car as available again
-    car.available = true;
-    await car.save();
-
-    res.json({ message: 'Car returned successfully' });
-  } catch (err) {
-    console.error('Error returning car:', err);
-    res.status(500).json({ error: err.message });
+  returnRental: async (req, res) => {
+    try {
+      const rental = await Rental.findById(req.params.id);
+      if (!rental) return res.status(404).json({ message: 'Rental not found' });
+  
+      // Find the car
+      const car = await Car.findById(rental.car);
+      if (!car) return res.status(404).json({ message: 'Car not found' });
+  
+      // Mark the car as available again
+      car.available = true;
+      await car.save();
+  
+      // Update rental status to 'Completed'
+      rental.status = 'completed';
+      await rental.save();
+  
+      res.json({ message: 'Car returned successfully and rental marked as completed' });
+    } catch (err) {
+      console.error('Error returning car:', err);
+      res.status(500).json({ error: err.message });
+    }
   }
-}
 
 };
 

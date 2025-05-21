@@ -19,4 +19,7 @@ router.delete('/:id', carController.deleteCar);
 // Update car availability (optional endpoint)
 router.put('/:id/availability', carController.updateAvailability);
 
+// Update car details (optional endpoint)
+router.put('/:id', validateRequest(createCarSchema), carController.updateCar);
+
 export default router;
