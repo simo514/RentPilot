@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import RentalForm from './pages/RentalForm';
 import RentalHistory from './pages/RentalHistory';
 import Cars from './pages/Cars';
+import RentalSummary from './pages/RentalSummary';
 import RentalDetails from './pages/RentalDetails';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,6 +21,7 @@ function App() {
           <Route path="rentals" element={<RentalHistory />} />
           <Route path="rental/:id" element={<RentalDetails />} />
           <Route path="cars" element={<Cars />} />
+          <Route path="rental-summary" element={<RentalSummary />} />
         </Route>
       </Routes>
       <ToastContainer position="bottom-right" autoClose={3000} />

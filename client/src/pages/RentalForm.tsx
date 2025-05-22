@@ -51,8 +51,12 @@ function RentalForm() {
       dailyRate: formData.dailyRate,
     };
 
-    await createRental(rentalData);
-    navigate('/rentals'); // Redirect to rental history page
+  // 🔸 Save to localStorage
+  localStorage.setItem('rentalSummary', JSON.stringify(rentalData));
+  localStorage.setItem('car', JSON.stringify(selectedCar));
+
+  // 🔸 Navigate to summary page
+  navigate('/rental-summary');
   };
 
   return (
