@@ -34,5 +34,25 @@ export const createRentalSchema = Joi.object({
     'any.required': 'Daily rate is required',
     'number.base': 'Daily rate must be a number',
     'number.positive': 'Daily rate must be greater than 0',
-  })
+  }),
+
+  documents: Joi.array().items(
+    Joi.object({
+      name: Joi.string().required().messages({
+        'any.required': 'Document name is required',
+        'string.base': 'Document name must be a string',
+      }),
+      image: Joi.string().uri().required().messages({
+        'any.required': 'Document image URL is required',
+        'string.base': 'Document image must be a string',
+        'string.uri': 'Document image must be a valid URL',
+      }),
+      uploadedAt: Joi.date().required().messages({
+        'any.required': 'Document upload date is required',
+        'date.base': 'Uploaded date must be a valid date',
+      }),
+    })
+  ).optional().messages({
+    'array.base': 'Documents must be an array of objects',
+  }),
 });

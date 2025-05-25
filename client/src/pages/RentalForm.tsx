@@ -51,6 +51,8 @@ function RentalForm() {
       dailyRate: formData.dailyRate,
     };
 
+    
+
   // 🔸 Save to localStorage
   localStorage.setItem('rentalSummary', JSON.stringify(rentalData));
   localStorage.setItem('car', JSON.stringify(selectedCar));

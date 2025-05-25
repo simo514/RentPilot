@@ -57,57 +57,65 @@ function RentalHistory() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {[...filteredRentals] // Use filteredRentals instead of rentals
-                .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-                .map((rental) => (
-                  <tr key={rental._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <User className="h-5 w-5 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">{rental.client.firstName} {rental.client.lastName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <Car className="h-5 w-5 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">
-                          {rental.car.make} {rental.car.model}
-                          <span className="block text-xs text-gray-500">{rental.car.matricule}</span>
+              {filteredRentals.length > 0 ? (
+                [...filteredRentals] // Use filteredRentals instead of rentals
+                  .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                  .map((rental) => (
+                    <tr key={rental._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <User className="h-5 w-5 text-gray-400 mr-2" />
+                          <span className="text-sm text-gray-900">{rental.client.firstName} {rental.client.lastName}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <Car className="h-5 w-5 text-gray-400 mr-2" />
+                          <span className="text-sm text-gray-900">
+                            {rental.car.make} {rental.car.model}
+                            <span className="block text-xs text-gray-500">{rental.car.matricule}</span>
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+                          <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.startDate))}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+                          <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.endDate))}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          rental.status === 'active' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-gray-800'
+                        }`}>
+                          {rental.status}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.startDate))}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.endDate))}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        rental.status === 'active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-gray-800'
-                      }`}>
-                        {rental.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {Navigate(`/rental/${rental._id}`)}}
-                        className="text-primqry-600 hover:text-primary-900 tranistion-colors">
-                        <Eye className='h-5 w-5' />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => {Navigate(`/rental/${rental._id}`)}}
+                          className="text-primqry-600 hover:text-primary-900 tranistion-colors">
+                          <Eye className='h-5 w-5' />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                    No data available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
           </div>

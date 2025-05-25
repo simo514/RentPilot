@@ -1,11 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Car, CreditCard, MapPin, Phone, User } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 
 function RentalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showPreview, setShowPreview] = useState<string | null>(null);
 
   const { currentRental: rental, loading, error, fetchRentalById, returnCar } = useRentalHistoryStore();
 
@@ -96,6 +97,28 @@ function RentalDetails() {
           </div>
         </div>
 
+        {/* View Documents */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <h2 className="text-xl font-semibold mb-4">Documents</h2>
+          {rental.documents && rental.documents.length > 0 ? (
+            <div className="space-y-4">
+              {rental.documents.map((doc, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <p className="text-gray-600">{doc.name}</p>
+                  <button
+                    onClick={() => setShowPreview(doc.image)} // Set the preview image
+                    className="text-primary-600 hover:text-primary-700"
+                  >
+                    View
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No documents uploaded.</p>
+          )}
+        </div>
+
         {/* Payment Information */}
         {/* <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -115,6 +138,26 @@ function RentalDetails() {
           <p className="text-gray-600">{rental.notes}</p>
         </div> */}
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-xl font-semibold">Document Preview</h2>
+              <button
+                onClick={() => setShowPreview(null)} // Close the preview
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex-1 p-4 flex justify-center items-center">
+              <img src={showPreview} alt="Document Preview" className="max-h-full max-w-full" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

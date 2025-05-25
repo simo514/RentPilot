@@ -34,7 +34,14 @@ const rentalController = {
         startDate: start,
         endDate: end,
         dailyRate,
-        totalPrice
+        totalPrice,
+        documents: req.files
+          ? req.files.map(file => ({
+              name: file.originalname,
+              image: file.path,
+              uploadedAt: new Date(),
+            }))
+          : req.body.documents || [], // Use documents from the request body if no files are uploaded
       });
 
       const savedRental = await rental.save();

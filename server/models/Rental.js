@@ -7,6 +7,13 @@ const rentalSchema = new mongoose.Schema({
     phone: String,
     email: { type: String, required: false },
   },
+  documents: [
+    {
+      name: { type: String, required: true }, 
+      image: { type: String, required: true },
+      uploadedAt: { type: Date, default: Date.now }
+    }
+  ],
   car: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Car',
