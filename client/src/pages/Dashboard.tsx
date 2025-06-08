@@ -108,14 +108,32 @@ function Dashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {lastFiveRentals.map((rental) => (
                   <tr key={rental._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{rental.client.firstName} {rental.client.lastName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rental.car.model} {rental.car.make}
-                      <span className="block text-xs text-gray-500">{rental.car.matricule}</span>
+                      {rental.client
+                        ? `${rental.client.firstName} ${rental.client.lastName}`
+                        : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(rental.startDate).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(rental.endDate).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rental.totalPrice}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {rental.car
+                        ? `${rental.car.make} ${rental.car.model}`
+                        : 'N/A'}
+                      <span className="block text-xs text-gray-500">
+                        {rental.car ? rental.car.matricule : ''}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {rental.startDate
+                        ? new Date(rental.startDate).toLocaleDateString()
+                        : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {rental.endDate
+                        ? new Date(rental.endDate).toLocaleDateString()
+                        : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {rental.totalPrice !== undefined ? `$${rental.totalPrice}` : 'N/A'}
+                    </td>
                   </tr>
                 ))}
               </tbody>

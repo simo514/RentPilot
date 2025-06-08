@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Car, CreditCard, MapPin, Phone, User, FileText, Eye, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, Car, User, FileText, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 // @ts-ignore

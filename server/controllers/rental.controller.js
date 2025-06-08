@@ -114,7 +114,17 @@ const rentalController = {
       console.error('Error returning car:', err);
       res.status(500).json({ error: err.message });
     }
-  }
+  },
+  // 5. Delete a rental
+  deleteRental: async (req, res) => {
+    try {
+      const rental = await Rental.findByIdAndDelete(req.params.id);
+      if (!rental) return res.status(404).json({ message: 'Rental not found' });
+      res.json({ message: 'Rental deleted successfully' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
 };
 
