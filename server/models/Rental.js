@@ -6,6 +6,12 @@ const rentalSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     phone: String,
     email: { type: String, required: false },
+    dateOfBirth: { type: Date, required: false },
+    address: { type: String, required: false },
+    nationality: { type: String, required: false },
+    clientID: { type: String, required: false },
+    licenceNumber: { type: String, required: false },
+    clientLicenseIssued: { type: Date, required: false }
   },
   documents: [
     {
@@ -19,12 +25,14 @@ const rentalSchema = new mongoose.Schema({
     ref: 'Car',
     required: true
   },
+  departureLocation: { type: String, required: false },
+  returnLocation: { type: String, required: false },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   status: { type: String, enum: ['active', 'completed'], default: 'active' },
   dailyRate: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
-  contractPath: String,
+  rentalAgreement: { type: String, required: false },
   createdAt: { type: Date, default: Date.now }
 });
 

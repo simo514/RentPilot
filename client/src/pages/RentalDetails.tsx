@@ -1,12 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Car, CreditCard, MapPin, Phone, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Car, CreditCard, MapPin, Phone, User, FileText, Eye, Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 
 function RentalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState<string | null>(null);
+  const [showAgreement, setShowAgreement] = useState(false);
 
   const { currentRental: rental, loading, error, fetchRentalById, returnCar } = useRentalHistoryStore();
 
@@ -16,6 +19,19 @@ function RentalDetails() {
       fetchRentalById(id);
     }
   }, [id, fetchRentalById]);
+
+  // Use the modal content for PDF download
+  const handleDownloadAgreementPdf = () => {
+    const element = document.getElementById('rental-agreement-html-content');
+    if (element && rental && rental.rentalAgreement) {
+      html2pdf().from(element).set({
+        margin: 10,
+        filename: 'rental-agreement.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).save();
+    }
+  };
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">Error: {error}</p>;
@@ -119,24 +135,28 @@ function RentalDetails() {
           )}
         </div>
 
-        {/* Payment Information */}
-        {/* <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        {/* Rental Agreement View */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <CreditCard className="h-5 w-5 mr-2 text-primary-500" />
-            Payment Information
+            <FileText className="h-5 w-5 mr-2 text-primary-500" />
+            Rental Agreement
           </h2>
-          <div className="space-y-3">
-            <p className="text-gray-600">Payment Method: <span className="text-gray-900">{rental.payment.method}</span></p>
-            <p className="text-gray-600">Payment Status: <span className="text-gray-900">{rental.payment.status}</span></p>
-            <p className="text-gray-600">Transaction ID: <span className="text-gray-900">{rental.payment.transactionId}</span></p>
-          </div>
-        </div> */}
+          {rental.rentalAgreement ? (
+            <div className="flex gap-2">
+              <button
+                className="text-primary-600 hover:text-primary-700 flex items-center"
+                onClick={() => setShowAgreement(true)}
+              >
+                <Eye className="h-5 w-5 mr-1" />
+                View
+              </button>
+              {/* Download button removed from here */}
+            </div>
+          ) : (
+            <p className="text-gray-600">No rental agreement available.</p>
+          )}
+        </div>
 
-        {/* Additional Notes */}
-        {/* <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-4">Additional Notes</h2>
-          <p className="text-gray-600">{rental.notes}</p>
-        </div> */}
       </div>
 
       {/* Preview Modal */}
@@ -158,6 +178,38 @@ function RentalDetails() {
           </div>
         </div>
       )}
+
+      {/* Rental Agreement Modal */}
+      {showAgreement && rental.rentalAgreement && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col overflow-auto">
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="text-xl font-semibold">Rental Agreement</h2>
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
+                onClick={handleDownloadAgreementPdf}
+              >
+                Download
+              </button>
+              <button
+                onClick={() => setShowAgreement(false)}
+                className="text-gray-500 hover:text-gray-700 ml-2"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 p-4 overflow-auto">
+            <div
+              id="rental-agreement-html-content"
+              dangerouslySetInnerHTML={{ __html: rental.rentalAgreement }}
+              className="prose max-w-none"
+            />
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }

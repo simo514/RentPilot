@@ -15,6 +15,7 @@ interface rentalStore {
   fetchRentalById: (id: string) => Promise<void>;
   returnCar: (id: string) => Promise<void>;
   createRental: (rentalData: RentalCreationData) => Promise<void>;
+  getTemplate: () => Promise<any | null>;
 }
 
 const useRentalHistoryStore = create<rentalStore>((set) => ({
@@ -74,7 +75,17 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
       set({ error: error instanceof Error ? error.message : 'Failed to return car', loading: false });
       toast.error('Failed to return car'); // Error toast
     }
-  }
+  },
+  getTemplate: async () => {
+    try {
+      const response = await api.get('/api/templates');
+      // The backend returns an array, so return the first template or null
+      return response.data && response.data.length > 0 ? response.data[0] : null;
+    } catch (error) {
+      toast.error('Failed to fetch contract template');
+      return null;
+    }
+  },
 }));
 
 export default useRentalHistoryStore;

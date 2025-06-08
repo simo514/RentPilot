@@ -1,77 +1,20 @@
 import { useState, useEffect} from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft, Check, Eye, Upload } from 'lucide-react';
-import { PDFViewer, Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFViewer} from '@react-pdf/renderer';
 import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the store
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  heading: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  text: {
-    fontSize: 12,
-    marginBottom: 5,
-  },
-});
-
-const RentalDocument = ({ data }: { data: any}) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>Rental Agreement</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.heading}>Client Information</Text>
-        <Text style={styles.text}>Name: {data.client.firstName} {data.client.lastName}</Text>
-        <Text style={styles.text}>Phone: {data.client.phone}</Text>
-        <Text style={styles.text}>Email: {data.client.email}</Text>
-      </View>
-{/* 
-      <View style={styles.section}>
-        <Text style={styles.heading}>Vehicle Details</Text>
-        <Text style={styles.text}>Car: {data.make} {data.model}</Text>
-        <Text style={styles.text}>Matricule: {data.matricule}</Text>
-      </View> */}
-
-      <View style={styles.section}>
-        <Text style={styles.heading}>Rental Period</Text>
-        <Text style={styles.text}>Start Date: {data.startDate}</Text>
-        <Text style={styles.text}>End Date: {data.endDate}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.heading}>Payment Details</Text>
-        <Text style={styles.text}>Daily Rate: ${data.dailyRate}</Text>
-        <Text style={styles.text}>Total Price: ${data.totalPrice}</Text>
-      </View>
-    </Page>
-  </Document>
-);
 
 function RentalSummary() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { createRental } = useRentalHistoryStore(); // Access the createRental method
+  const { createRental, getTemplate } = useRentalHistoryStore(); // add getTemplate
   const [showPDF, setShowPDF] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [rentalData, setRentalData] = useState<any>(null);
   const [car, setCar] = useState<any>(null);
-  const [documents, setDocuments] = useState({
-    driverLicense: null as File | null,
-    idCard: null as File | null,
-  });
-
+  const [templateHtml, setTemplateHtml] = useState<string | null>(null);
 
   useEffect(() => {
     const storedData = localStorage.getItem('rentalSummary');
@@ -127,11 +70,63 @@ function RentalSummary() {
     }
 
     try {
-      await createRental(rentalData); // Pass the updated rentalData directly
-      navigate('/rentals'); // Navigate to the rental history page
+      // Always generate the latest populated HTML template before sending
+      let agreement = '';
+      const template = await getTemplate();
+      if (template && template.html) {
+        agreement = populateTemplate(template.html, rentalData, car);
+        setRentalData((prev: any) => ({
+          ...prev,
+          rentalAgreement: agreement,
+        }));
+      }
+      await createRental({
+        ...rentalData,
+        rentalAgreement: agreement,
+      });
+      navigate('/rentals');
     } catch (error) {
       console.error('Error creating rental:', error);
-      alert('Failed to create rental. Please try again.');
+    }
+  };
+
+  // Utility to replace {{field}} in template with value from data objects
+  function populateTemplate(template: string, rentalData: any, car: any) {
+    if (!template) return '';
+    return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
+      // Support nested keys like client.firstName
+      const value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
+      return value !== undefined && value !== null ? value : '';
+    });
+  }
+
+  const handleViewAgreement = async () => {
+    const template = await getTemplate();
+    if (template && template.html) {
+      const populatedHtml = populateTemplate(template.html, rentalData, car);
+      setTemplateHtml(populatedHtml);
+      setShowPDF(false); // Hide PDF if open
+
+      // Add the populated agreement to rentalData
+      setRentalData((prev: any) => ({
+        ...prev,
+        rentalAgreement: populatedHtml, // Save the populated HTML as rentalAgreement
+      }));
+    } else {
+      setTemplateHtml('<p>No template found.</p>');
+    }
+  };
+
+  const handleDownloadTemplatePdf = () => {
+    const element = document.getElementById('template-html-content');
+    if (element && templateHtml) {
+      // templateHtml is already populated with values
+      html2pdf().from(element).set({
+        margin: 10,
+        filename: 'rental-agreement.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).save();
     }
   };
 
@@ -152,7 +147,7 @@ function RentalSummary() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold mb-4">Client Information</h2>
           <div className="space-y-2">
-            <p><span className="font-medium">Name:</span> {rentalData.client.firstName}</p>
+            <p><span className="font-medium">Name:</span> {rentalData.client.firstName} {rentalData.client.lastName} </p>
             <p><span className="font-medium">Phone:</span> {rentalData.client.phone}</p>
             <p><span className="font-medium">Email:</span> {rentalData.client.email}</p>
           </div>
@@ -179,7 +174,7 @@ function RentalSummary() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold mb-4">Documents</h2>
           <button
-            onClick={() => setShowPDF(true)}
+            onClick={handleViewAgreement}
             className="flex items-center text-primary-600 hover:text-primary-700"
           >
             <FileText className="h-5 w-5 mr-2" />
@@ -265,6 +260,38 @@ function RentalSummary() {
         </button>
       </div>
 
+      {/* Rental Agreement Template Modal */}
+      {templateHtml && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col overflow-auto">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-xl font-semibold">Rental Agreement Template</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDownloadTemplatePdf}
+                  className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
+                >
+                  Download
+                </button>
+                <button
+                  onClick={() => setTemplateHtml(null)}
+                  className="text-gray-500 hover:text-gray-700 ml-2"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-4 overflow-auto">
+              <div
+                id="template-html-content"
+                dangerouslySetInnerHTML={{ __html: templateHtml }}
+                className="prose max-w-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPDF && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
@@ -280,7 +307,6 @@ function RentalSummary() {
 
             <div className="flex-1 p-4">
               <PDFViewer style={{ width: '100%', height: '100%' }}>
-                <RentalDocument data={rentalData} />
               </PDFViewer>
             </div>
           </div>

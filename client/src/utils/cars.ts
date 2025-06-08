@@ -18,6 +18,8 @@ export interface Car {
   dailyRate: number;
   totalPrice: number;
   contractPath?: string; // Optional contract path
+  rentalAgreement?: string; 
+
 }
 
 export interface Document {
@@ -49,5 +51,6 @@ export interface Document {
       image: string;
       uploadedAt: string; // Date as a string
     }[]; 
+    rentalAgreement?: string; 
 
   }
