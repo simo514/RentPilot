@@ -17,5 +17,8 @@ router.get('/:id', rentalController.getRentalById);
 // PUT /api/rentals/:id → return a rental
 router.put('/:id/return', rentalController.returnRental);
 
+// DELETE /api/rentals/:id → Delete a rental
+router.delete('/:id', rentalController.deleteRental);
+
 
 export default router;

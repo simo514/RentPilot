@@ -5,10 +5,20 @@ const rentalController = {
   // 1. Create a new rental
   createRental: async (req, res) => {
     try {
-      const { client, carId, startDate, endDate, dailyRate } = req.body;
+      const { 
+        client, 
+        carId, 
+        startDate, 
+        endDate, 
+        dailyRate, 
+        departureLocation, 
+        returnLocation, 
+        rentalAgreement,
+        documents // in case documents are sent in body
+      } = req.body;
 
-       // Validate daily rate
-    if (!dailyRate || dailyRate <= 0) {
+      // Validate daily rate
+      if (!dailyRate || dailyRate <= 0) {
         return res.status(400).json({ message: 'Daily rate must be provided and greater than 0' });
       }
 
@@ -24,7 +34,7 @@ const rentalController = {
       const days = Math.ceil((end - start) / oneDay);
       if (days <= 0) return res.status(400).json({ message: 'End date must be after start date' });
 
-        // Calculate the total price
+      // Calculate the total price
       const totalPrice = days * dailyRate;
 
       // Create the rental
@@ -34,7 +44,17 @@ const rentalController = {
         startDate: start,
         endDate: end,
         dailyRate,
-        totalPrice
+        totalPrice,
+        departureLocation,
+        returnLocation,
+        rentalAgreement,
+        documents: req.files
+          ? req.files.map(file => ({
+              name: file.originalname,
+              image: file.path,
+              uploadedAt: new Date(),
+            }))
+          : documents || [], // Use documents from the request body if no files are uploaded
       });
 
       const savedRental = await rental.save();
@@ -94,7 +114,17 @@ const rentalController = {
       console.error('Error returning car:', err);
       res.status(500).json({ error: err.message });
     }
-  }
+  },
+  // 5. Delete a rental
+  deleteRental: async (req, res) => {
+    try {
+      const rental = await Rental.findByIdAndDelete(req.params.id);
+      if (!rental) return res.status(404).json({ message: 'Rental not found' });
+      res.json({ message: 'Rental deleted successfully' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 
 };
 
