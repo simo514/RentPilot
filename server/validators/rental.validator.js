@@ -45,6 +45,11 @@ export const createRentalSchema = Joi.object({
     'number.positive': 'Daily rate must be greater than 0',
   }),
 
+  totalPrice: Joi.number().positive().optional().messages({
+    'number.base': 'Total price must be a number',
+    'number.positive': 'Total price must be greater than 0',
+  }),
+
   rentalAgreement: Joi.string().allow('').optional().messages({
     'string.base': 'Rental agreement must be a string',
   }),

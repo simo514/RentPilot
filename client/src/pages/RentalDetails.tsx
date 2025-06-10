@@ -95,10 +95,32 @@ function RentalDetails() {
             Rental Period
           </h2>
           <div className="space-y-3">
-            <p className="text-gray-600">Start Date: <span className="text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.startDate))}
-            </span></p>
-            <p className="text-gray-600">End Date: <span className="text-gray-900">  {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rental.endDate))}
-            </span></p>
+            <p className="text-gray-600">
+              Start Date:{" "}
+              <span className="text-gray-900">
+                {new Date(rental.startDate).toLocaleString('en-GB', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                })}
+              </span>
+            </p>
+            <p className="text-gray-600">
+              End Date:{" "}
+              <span className="text-gray-900">
+                {new Date(rental.endDate).toLocaleString('en-GB', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                })}
+              </span>
+            </p>
             <p className="text-gray-600">Daily Rate: <span className="text-gray-900">${rental.dailyRate}</span></p>
             <p className="text-gray-600">Total Amount: <span className="text-gray-900">${rental.totalPrice}</span></p>
             <p className="text-gray-600">Status: 

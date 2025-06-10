@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Car, Users, ClipboardList, LayoutDashboard } from 'lucide-react';
 
@@ -13,7 +12,6 @@ function Navbar() {
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/rentals', label: 'Rentals', icon: ClipboardList },
     { path: '/cars', label: 'Cars', icon: Car },
-    { path: '/clients', label: 'Clients', icon: Users },
   ];
 
   return (

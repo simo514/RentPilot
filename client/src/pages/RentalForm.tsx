@@ -6,7 +6,7 @@ import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, 
 
 function RentalForm() {
   const { cars, fetchCars } = useCarStore();
-  const { createRental, loading } = useRentalHistoryStore();
+  const { loading } = useRentalHistoryStore();
   const navigate = useNavigate(); // Added navigate hook
 
   const [formData, setFormData] = useState({
@@ -23,15 +23,65 @@ function RentalForm() {
     carId: '',
     departureLocation: '',
     returnLocation: '',
-    startDate: '',
-    endDate: '',
+    startDate: (() => {
+      // Set startDate to current date and time in 'YYYY-MM-DDTHh:mm' 24-hour format for input type="datetime-local"
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const yyyy = now.getFullYear();
+      const mm = pad(now.getMonth() + 1);
+      const dd = pad(now.getDate());
+      const hh = pad(now.getHours());
+      const min = pad(now.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    })(),
+    endDate: (() => {
+      // Set endDate to empty string so no "Today" button or default value is shown
+      return '';
+    })(),
     dailyRate: 0,
-    // createdAt: '', // usually set by backend
+    totalPrice: 0, // Added totalPrice
   });
+
+  // Add state for date validation
+  const [dateWarning, setDateWarning] = useState('');
 
   useEffect(() => {
     fetchCars();
   }, [fetchCars]);
+
+  // Add effect to check date validity
+  useEffect(() => {
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      new Date(formData.endDate) < new Date(formData.startDate)
+    ) {
+      setDateWarning('⚠️ Return date cannot be before start date.');
+    } else {
+      setDateWarning('');
+    }
+  }, [formData.startDate, formData.endDate]);
+
+  // Calculate totalPrice when dates or dailyRate change
+  useEffect(() => {
+    if (formData.startDate && formData.endDate && formData.dailyRate > 0) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      // Calculate difference in days (not inclusive)
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+      const total = diffDays > 0 ? diffDays * Number(formData.dailyRate) : 0;
+      setFormData((prev) => ({ ...prev, totalPrice: total }));
+    } else {
+      setFormData((prev) => ({ ...prev, totalPrice: 0 }));
+    }
+  }, [formData.startDate, formData.endDate, formData.dailyRate]);
+
+  // Add a variable to disable button if endDate is after startDate
+  const isReturnBeforeStart =
+    !!formData.startDate &&
+    !!formData.endDate &&
+    new Date(formData.endDate) < new Date(formData.startDate);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -67,6 +117,7 @@ function RentalForm() {
       startDate: formData.startDate,
       endDate: formData.endDate,
       dailyRate: formData.dailyRate,
+      totalPrice: formData.totalPrice, // Include totalPrice
       // createdAt: formData.createdAt, // usually set by backend
     };
 
@@ -232,7 +283,7 @@ function RentalForm() {
                   .filter((car) => car.available)
                   .map((car) => (
                     <option key={car._id} value={car._id}>
-                      {car.make} {car.model}
+                      {car.make} {car.model} - {car.matricule}
                     </option>
                   ))}
               </select>
@@ -268,7 +319,7 @@ function RentalForm() {
                 <FaCalendarAlt className="text-yellow-400" /> Start Date
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleChange}
@@ -281,13 +332,16 @@ function RentalForm() {
                 <FaCalendarAlt className="text-yellow-400" /> End Date
               </label>
               <input
-                type="date"
+                type="datetime-local"
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50 text-gray-700 placeholder-gray-400 appearance-none"
                 required
               />
+              {dateWarning && (
+                <span className="text-xs text-red-500">{dateWarning}</span>
+              )}
             </div>
             {/* Daily Rate */}
             <div>
@@ -303,11 +357,25 @@ function RentalForm() {
                 required
               />
             </div>
+            {/* Total Price */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <FaMoneyBill className="text-yellow-400" /> Total Price
+              </label>
+              <input
+                type="number"
+                name="totalPrice"
+                value={formData.totalPrice}
+                readOnly
+                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 bg-gray-100 text-gray-700"
+                tabIndex={-1}
+              />
+            </div>
           </div>
           <div className="pt-4">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isReturnBeforeStart}
               className="w-full md:w-auto px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600"
             >
               {loading ? 'Creating...' : 'Create Rental'}

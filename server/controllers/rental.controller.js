@@ -15,7 +15,8 @@ const rentalController = {
         departureLocation, 
         returnLocation, 
         rentalAgreement,
-        documents // in case documents are sent in body
+        documents,
+        totalPrice // in case documents are sent in body
       } = req.body;
 
       // Validate daily rate
@@ -35,16 +36,13 @@ const rentalController = {
       const days = Math.ceil((end - start) / oneDay);
       if (days <= 0) return res.status(400).json({ message: 'End date must be after start date' });
 
-      // Calculate the total price
-      const totalPrice = days * dailyRate;
-
       // Handle document uploads to Cloudinary (base64 only)
       let rentalDocuments = [];
       if (documents && Array.isArray(documents)) {
         rentalDocuments = await Promise.all(
           documents.map(async (doc) => ({
             name: doc.name,
-            image: await uploadImage(doc.image), // Upload base64 to Cloudinary
+            image: await uploadImage(doc.image), 
             uploadedAt: new Date(),
           }))
         );
@@ -70,7 +68,10 @@ const rentalController = {
       car.available = false;
       await car.save();
 
-      res.status(201).json(savedRental);
+      res.status(201).json({
+        message: 'Rental created successfully',
+        rental: savedRental
+      });
     } catch (err) {
       console.error('Error creating rental:', err);
       res.status(500).json({ error: err.message });
