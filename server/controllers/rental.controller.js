@@ -1,5 +1,6 @@
 import Rental from '../models/Rental.js';
 import Car from '../models/Car.js';
+import uploadImage from '../services/uploadImage.js';
 
 const rentalController = {
   // 1. Create a new rental
@@ -37,6 +38,18 @@ const rentalController = {
       // Calculate the total price
       const totalPrice = days * dailyRate;
 
+      // Handle document uploads to Cloudinary (base64 only)
+      let rentalDocuments = [];
+      if (documents && Array.isArray(documents)) {
+        rentalDocuments = await Promise.all(
+          documents.map(async (doc) => ({
+            name: doc.name,
+            image: await uploadImage(doc.image), // Upload base64 to Cloudinary
+            uploadedAt: new Date(),
+          }))
+        );
+      }
+
       // Create the rental
       const rental = new Rental({
         client,
@@ -48,13 +61,7 @@ const rentalController = {
         departureLocation,
         returnLocation,
         rentalAgreement,
-        documents: req.files
-          ? req.files.map(file => ({
-              name: file.originalname,
-              image: file.path,
-              uploadedAt: new Date(),
-            }))
-          : documents || [], // Use documents from the request body if no files are uploaded
+        documents: rentalDocuments,
       });
 
       const savedRental = await rental.save();
