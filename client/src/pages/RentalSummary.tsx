@@ -135,7 +135,7 @@ function RentalSummary() {
       html2pdf().from(element).set({
         margin: 10,
         filename: 'rental-agreement.pdf',
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).save();
     }

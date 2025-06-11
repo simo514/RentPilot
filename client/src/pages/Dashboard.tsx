@@ -11,26 +11,34 @@ function Dashboard() {
   const { fetchRentals, rentals } = useRentalHistoryStore();
   const { fetchCars, cars } = useCarStore();
 
-    useEffect(() => {
-      fetchRentals();
-    }, [fetchRentals]);
+  useEffect(() => {
+    fetchRentals();
+  }, [fetchRentals]);
 
   useEffect(() => {
     fetchCars();
   }, [fetchCars]);
-  // Mock data - replace with actual API calls
-  const stats = {
-    totalRentals: 24,
-    revenue: 12500,
-    activeRentals: 8,
-    availableCars: 15,
-  };
 
-  const recentRentals = [
-    { id: 1, client: 'John Doe', car: 'Tesla Model 3', startDate: '2024-03-01', endDate: '2024-03-05', price: 500 },
-    { id: 2, client: 'Jane Smith', car: 'BMW X5', startDate: '2024-03-02', endDate: '2024-03-07', price: 750 },
-    // Add more mock data as needed
-  ];
+  // Calculate total revenue and total rentals for the current month
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const rentalsThisMonth = rentals.filter(rental => {
+    const startDate = rental.startDate ? new Date(rental.startDate) : null;
+    return (
+      startDate &&
+      startDate.getMonth() === currentMonth &&
+      startDate.getFullYear() === currentYear
+    );
+  });
+
+  const totalRevenue = rentalsThisMonth.reduce(
+    (sum, rental) => sum + (typeof rental.totalPrice === 'number' ? rental.totalPrice : 0),
+    0
+  );
+
+  const totalRentalsThisMonth = rentalsThisMonth.length;
 
   const lastFiveRentals = rentals.slice(-5); // Get the last 5 rentals
 
@@ -53,7 +61,7 @@ function Dashboard() {
             <Calendar className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Rentals</p>
-              <p className="text-2xl font-semibold text-gray-900">{rentals.length}</p>
+              <p className="text-2xl font-semibold text-gray-900">{totalRentalsThisMonth}</p>
             </div>
           </div>
         </div>
@@ -63,7 +71,9 @@ function Dashboard() {
             <DollarSign className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Revenue</p>
-              <p className="text-2xl font-semibold text-gray-900">${stats.revenue}</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                ${totalRevenue}
+              </p>
             </div>
           </div>
         </div>
