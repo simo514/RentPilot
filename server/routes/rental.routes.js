@@ -6,7 +6,11 @@ import { createRentalSchema } from '../validators/rental.validator.js';
 const router = express.Router();
 
 // POST /api/rentals → Create a new rental
-router.post('/',validateRequest(createRentalSchema),rentalController.createRental);
+router.post(
+  '/',
+  validateRequest(createRentalSchema),
+  rentalController.createRental
+);
 
 // GET /api/rentals → Get all rentals
 router.get('/', rentalController.getAllRentals);
@@ -19,6 +23,5 @@ router.put('/:id/return', rentalController.returnRental);
 
 // DELETE /api/rentals/:id → Delete a rental
 router.delete('/:id', rentalController.deleteRental);
-
 
 export default router;

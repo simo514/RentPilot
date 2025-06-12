@@ -19,3 +19,10 @@ export const getTemplates = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Utility function to save a template from a file (for scripts)
+export const saveTemplateFromFile = async (name, html) => {
+  const template = new ContractTemplate({ name, html });
+  await template.save();
+  return template;
+};

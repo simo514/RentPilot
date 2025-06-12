@@ -93,9 +93,20 @@ function RentalSummary() {
   // Utility to replace {{field}} in template with value from data objects
   function populateTemplate(template: string, rentalData: any, car: any) {
     if (!template) return '';
+    // Helper to remove 'T' from ISO datetime if present
+    const formatDateTime = (val: any) => {
+      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
+        return val.replace('T', ' ');
+      }
+      return val;
+    };
     return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
       // Support nested keys like client.firstName
-      const value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
+      let value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
+      // Remove 'T' for startDate and endDate
+      if (key === 'startDate' || key === 'endDate') {
+        value = formatDateTime(value);
+      }
       return value !== undefined && value !== null ? value : '';
     });
   }
@@ -124,7 +135,7 @@ function RentalSummary() {
       html2pdf().from(element).set({
         margin: 10,
         filename: 'rental-agreement.pdf',
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).save();
     }

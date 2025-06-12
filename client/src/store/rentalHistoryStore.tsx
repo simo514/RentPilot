@@ -29,13 +29,15 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
     try {
       const response = await api.post('/api/rentals', rentalData);
       set((state) => ({
-        rentals: [...state.rentals, response.data],
+        rentals: [...state.rentals, response.data.rental || response.data],
         loading: false,
       }));
-      toast.success('Rental created successfully!'); // Success toast
-    } catch (error) {   
+      toast.success(response.data.message || 'Rental created!'); // Use response message
+    } catch (error: any) {   
       set({ error: error instanceof Error ? error.message : 'Failed to create rental', loading: false });
-      toast.error('Failed to create rental'); // Error toast
+      toast.error(
+        error?.response?.data?.message || 'Failed to create rental'
+      ); // Use error response message
     }
   },
 

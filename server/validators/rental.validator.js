@@ -17,13 +17,13 @@ export const createRentalSchema = Joi.object({
     nationality: Joi.string().allow('').optional(),
     clientID: Joi.string().allow('').optional(),
     licenceNumber: Joi.string().allow('').optional(),
-    clientLicenseIssued: Joi.date().allow('').optional()
+    clientLicenseIssued: Joi.date().allow('').optional(),
   }).messages({
-    'any.required': 'Client information is required'
+    'any.required': 'Client information is required',
   }),
 
   carId: Joi.string().required().messages({
-    'any.required': 'Car ID is required'
+    'any.required': 'Car ID is required',
   }),
 
   departureLocation: Joi.string().allow('').optional(),
@@ -45,27 +45,46 @@ export const createRentalSchema = Joi.object({
     'number.positive': 'Daily rate must be greater than 0',
   }),
 
+  totalPrice: Joi.number().positive().optional().messages({
+    'number.base': 'Total price must be a number',
+    'number.positive': 'Total price must be greater than 0',
+  }),
+
+  rentalDuration: Joi.number().integer().positive().required().messages({
+    'any.required': 'Rental duration is required',
+    'number.base': 'Rental duration must be a number',
+    'number.integer': 'Rental duration must be an integer',
+    'number.positive': 'Rental duration must be greater than 0',
+  }),
+
+  createdAt: Joi.date().optional().messages({
+    'date.base': 'Created date must be a valid date',
+  }),
+
   rentalAgreement: Joi.string().allow('').optional().messages({
     'string.base': 'Rental agreement must be a string',
   }),
 
-  documents: Joi.array().items(
-    Joi.object({
-      name: Joi.string().required().messages({
-        'any.required': 'Document name is required',
-        'string.base': 'Document name must be a string',
-      }),
-      image: Joi.string().uri().required().messages({
-        'any.required': 'Document image URL is required',
-        'string.base': 'Document image must be a string',
-        'string.uri': 'Document image must be a valid URL',
-      }),
-      uploadedAt: Joi.date().required().messages({
-        'any.required': 'Document upload date is required',
-        'date.base': 'Uploaded date must be a valid date',
-      }),
-    })
-  ).optional().messages({
-    'array.base': 'Documents must be an array of objects',
-  }),
+  documents: Joi.array()
+    .items(
+      Joi.object({
+        name: Joi.string().required().messages({
+          'any.required': 'Document name is required',
+          'string.base': 'Document name must be a string',
+        }),
+        image: Joi.string().uri().required().messages({
+          'any.required': 'Document image URL is required',
+          'string.base': 'Document image must be a string',
+          'string.uri': 'Document image must be a valid URL',
+        }),
+        uploadedAt: Joi.date().required().messages({
+          'any.required': 'Document upload date is required',
+          'date.base': 'Uploaded date must be a valid date',
+        }),
+      })
+    )
+    .optional()
+    .messages({
+      'array.base': 'Documents must be an array of objects',
+    }),
 });

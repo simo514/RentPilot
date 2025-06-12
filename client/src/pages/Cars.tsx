@@ -9,6 +9,8 @@ function Cars() {
   const { cars, fetchCars, addCarAsync, updateCarAsync, deleteCarAsync} = useCarStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingCarId, setEditingCarId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
 
   useEffect(() => {
@@ -52,12 +54,24 @@ function Cars() {
     }
   };
   const handledelete = async (carId: string) => {
-    if (!window.confirm("Are you sure you want to delete this car?")) return;
+    setConfirmDeleteId(carId);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-    await deleteCarAsync(carId);
+      await deleteCarAsync(confirmDeleteId);
     } catch (error) {
       console.error("Failed to delete car:", error);
     }
+    setShowConfirmDialog(false);
+    setConfirmDeleteId(null);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmDialog(false);
+    setConfirmDeleteId(null);
   };
 
   return (
@@ -223,6 +237,30 @@ function Cars() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-sm p-6">
+            <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
+            <p className="mb-6">Are you sure you want to delete this car?</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
