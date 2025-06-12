@@ -9,7 +9,10 @@ dotenv.config();
 const PORT = process.env.PORT || 4000;
 
 // Serve static files from /server/static at /static
-app.use('/static', express.static(new URL('./static', import.meta.url).pathname));
+app.use(
+  '/static',
+  express.static(new URL('./static', import.meta.url).pathname)
+);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

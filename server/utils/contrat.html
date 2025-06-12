@@ -30,6 +30,7 @@
       align-items: center;
       gap: 0;
       position: relative;
+      background: #b71c1c; /* Added red background */
     }
 
     .header img {
@@ -49,17 +50,19 @@
       align-items: center;
       justify-content: center;
       /* Center horizontally in header */
+      color: #fff; /* Make header text white for contrast */
     }
 
     .header h1 {
       font-size: 16px;
-      color: #b71c1c;
+      color: #fff; /* Ensure h1 is white */
       margin: 0;
     }
 
     .header p {
       margin: 2px 0;
       font-size: 12px;
+      color: #fff; /* Ensure header p is white */
     }
 
     .title-section {
@@ -255,7 +258,7 @@
           <p>Retour : <span class="dynamic-field">{{endDate}}</span></p>
         </div>
         <div class="info-box">
-          <p>Durée : <span class="dynamic-field">{{rentalDuration}}</span></p>
+          <p>Durée : <span class="dynamic-field">{{rentalDuration}} jours</span></p>
           <p>Lieu Départ : <span class="dynamic-field">{{departureLocation}}</span></p>
           <p>Lieu Retour : <span class="dynamic-field">{{returnLocation}}</span></p>
         </div>
@@ -272,9 +275,9 @@
           <p>Livraison/Reprise : <span class="dynamic-field">{{deliveryFee}} DH</span></p>
         </div>
         <div class="info-box">
-          <p>Assurance : <span class="dynamic-field">{{insuranceDays}}</span> j à <span class="dynamic-field">{{insuranceRate}} DH</span></p>
+          <p>Assurance : <span class="dynamic-field">80 DH</span></p>
           <p>Total HT : <span class="dynamic-field">{{totalHT}} DH</span></p>
-          <p>Taxe : <span class="dynamic-field">{{taxRate}}%</span> = <span class="dynamic-field">{{taxAmount}} DH</span></p>
+          <p>Taxe : <span class="dynamic-field">20%</span></p>
           <p><span class="dynamic-field">{{fuelLiters}}</span> L essence à <span class="dynamic-field">{{fuelPrice}} DH</span></p>
           <p class="highlight">TOTAL GÉNÉRAL : <span class="dynamic-field">{{totalPrice}} DH</span></p>
         </div>

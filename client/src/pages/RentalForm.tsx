@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // Added import
 import useCarStore from '../store/carStore';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, FaCar, FaMapMarkerAlt, FaCalendarAlt, FaMoneyBill } from 'react-icons/fa';
+import { create } from 'zustand';
 
 function RentalForm() {
   const { cars, fetchCars } = useCarStore();
@@ -70,7 +71,8 @@ function RentalForm() {
       // Calculate difference in days (not inclusive)
       const diffTime = end.getTime() - start.getTime();
       const diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
-      const total = diffDays > 0 ? diffDays * Number(formData.dailyRate) : 0;
+      const base = diffDays > 0 ? diffDays * Number(formData.dailyRate) : 0;
+      const total = base > 0 ? Math.round(base * 1.2 + 80) : 0;
       setFormData((prev) => ({ ...prev, totalPrice: total }));
     } else {
       setFormData((prev) => ({ ...prev, totalPrice: 0 }));
@@ -117,8 +119,24 @@ function RentalForm() {
       startDate: formData.startDate,
       endDate: formData.endDate,
       dailyRate: formData.dailyRate,
-      totalPrice: formData.totalPrice, // Include totalPrice
-      // createdAt: formData.createdAt, // usually set by backend
+      totalPrice: formData.totalPrice,
+      rentalDuration: (() => {
+        const start = new Date(formData.startDate);
+        const end = new Date(formData.endDate);
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+        return diffDays;
+      })(),
+      createdAt: (() => {
+        const now = new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const dd = pad(now.getDate());
+        const mm = pad(now.getMonth() + 1);
+        const yyyy = now.getFullYear();
+        const hh = pad(now.getHours());
+        const min = pad(now.getMinutes());
+        return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+      })(),
     };
 
     // 🔸 Save to localStorage

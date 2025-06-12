@@ -1,5 +1,8 @@
 import express from 'express';
-import { saveTemplate, getTemplates } from '../controllers/contractTemplate.controller.js';
+import {
+  saveTemplate,
+  getTemplates,
+} from '../controllers/contractTemplate.controller.js';
 
 const router = express.Router();
 

@@ -6,35 +6,43 @@ const rentalController = {
   // 1. Create a new rental
   createRental: async (req, res) => {
     try {
-      const { 
-        client, 
-        carId, 
-        startDate, 
-        endDate, 
-        dailyRate, 
-        departureLocation, 
-        returnLocation, 
+      const {
+        client,
+        carId,
+        startDate,
+        endDate,
+        dailyRate,
+        departureLocation,
+        returnLocation,
         rentalAgreement,
         documents,
-        totalPrice // in case documents are sent in body
+        totalPrice,
+        rentalDuration,
+        createdAt, // in case documents are sent in body
       } = req.body;
 
       // Validate daily rate
       if (!dailyRate || dailyRate <= 0) {
-        return res.status(400).json({ message: 'Daily rate must be provided and greater than 0' });
+        return res
+          .status(400)
+          .json({ message: 'Daily rate must be provided and greater than 0' });
       }
 
       // Find the car
       const car = await Car.findById(carId);
       if (!car) return res.status(404).json({ message: 'Car not found' });
-      if (!car.available) return res.status(400).json({ message: 'Car is not available' });
+      if (!car.available)
+        return res.status(400).json({ message: 'Car is not available' });
 
       // Calculate the number of days
       const start = new Date(startDate);
       const end = new Date(endDate);
       const oneDay = 1000 * 60 * 60 * 24;
       const days = Math.ceil((end - start) / oneDay);
-      if (days <= 0) return res.status(400).json({ message: 'End date must be after start date' });
+      if (days <= 0)
+        return res
+          .status(400)
+          .json({ message: 'End date must be after start date' });
 
       // Handle document uploads to Cloudinary (base64 only)
       let rentalDocuments = [];
@@ -42,7 +50,7 @@ const rentalController = {
         rentalDocuments = await Promise.all(
           documents.map(async (doc) => ({
             name: doc.name,
-            image: await uploadImage(doc.image), 
+            image: await uploadImage(doc.image),
             uploadedAt: new Date(),
           }))
         );
@@ -59,6 +67,8 @@ const rentalController = {
         departureLocation,
         returnLocation,
         rentalAgreement,
+        rentalDuration,
+        createdAt,
         documents: rentalDocuments,
       });
 
@@ -70,7 +80,7 @@ const rentalController = {
 
       res.status(201).json({
         message: 'Rental created successfully',
-        rental: savedRental
+        rental: savedRental,
       });
     } catch (err) {
       console.error('Error creating rental:', err);
@@ -104,20 +114,22 @@ const rentalController = {
     try {
       const rental = await Rental.findById(req.params.id);
       if (!rental) return res.status(404).json({ message: 'Rental not found' });
-  
+
       // Find the car
       const car = await Car.findById(rental.car);
       if (!car) return res.status(404).json({ message: 'Car not found' });
-  
+
       // Mark the car as available again
       car.available = true;
       await car.save();
-  
+
       // Update rental status to 'Completed'
       rental.status = 'completed';
       await rental.save();
-  
-      res.json({ message: 'Car returned successfully and rental marked as completed' });
+
+      res.json({
+        message: 'Car returned successfully and rental marked as completed',
+      });
     } catch (err) {
       console.error('Error returning car:', err);
       res.status(500).json({ error: err.message });
@@ -133,7 +145,6 @@ const rentalController = {
       res.status(500).json({ error: err.message });
     }
   },
-
 };
 
 export default rentalController;
