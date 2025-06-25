@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'; // Added import
 import useCarStore from '../store/carStore';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, FaCar, FaMapMarkerAlt, FaCalendarAlt, FaMoneyBill } from 'react-icons/fa';
-import { create } from 'zustand';
 
 function RentalForm() {
   const { cars, fetchCars } = useCarStore();
