@@ -36,8 +36,15 @@ function RentalForm() {
       return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
     })(),
     endDate: (() => {
-      // Set endDate to empty string so no "Today" button or default value is shown
-      return '';
+      // Set endDate to current date and time (same as startDate)
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const yyyy = now.getFullYear();
+      const mm = pad(now.getMonth() + 1);
+      const dd = pad(now.getDate());
+      const hh = pad(now.getHours());
+      const min = pad(now.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
     })(),
     dailyRate: 0,
     totalPrice: 0, // Added totalPrice
@@ -71,8 +78,9 @@ function RentalForm() {
       // Calculate difference in days (not inclusive)
       const diffTime = end.getTime() - start.getTime();
       const diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
-      const base = diffDays > 0 ? diffDays * Number(formData.dailyRate) : 0;
-      const total = base > 0 ? Math.round(base * 1.2 + 80) : 0;
+      // Updated calculation: (dailyRate * days + 80 * days) * 1.2
+      const base = diffDays > 0 ? (Number(formData.dailyRate) * diffDays + 80 * diffDays) : 0;
+      const total = base > 0 ? Math.round(base * 1.2) : 0;
       setFormData((prev) => ({ ...prev, totalPrice: total }));
     } else {
       setFormData((prev) => ({ ...prev, totalPrice: 0 }));
@@ -119,7 +127,15 @@ function RentalForm() {
       startDate: formData.startDate,
       endDate: formData.endDate,
       dailyRate: formData.dailyRate,
-      totalPrice: formData.totalPrice,
+      totalPrice: (() => {
+        const start = new Date(formData.startDate);
+        const end = new Date(formData.endDate);
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = diffTime >= 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+        // Updated calculation: (dailyRate * days + 80 * days) * 1.2
+        const base = diffDays > 0 ? (Number(formData.dailyRate) * diffDays + 80 * diffDays) : 0;
+        return base > 0 ? Math.round(base * 1.2) : 0;
+      })(),
       rentalDuration: (() => {
         const start = new Date(formData.startDate);
         const end = new Date(formData.endDate);
@@ -128,14 +144,8 @@ function RentalForm() {
         return diffDays;
       })(),
       createdAt: (() => {
-        const now = new Date();
-        const pad = (n: number) => n.toString().padStart(2, '0');
-        const dd = pad(now.getDate());
-        const mm = pad(now.getMonth() + 1);
-        const yyyy = now.getFullYear();
-        const hh = pad(now.getHours());
-        const min = pad(now.getMinutes());
-        return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+        // Use ISO string for valid date
+        return new Date().toISOString();
       })(),
     };
 
@@ -406,3 +416,4 @@ function RentalForm() {
 }
 
 export default RentalForm;
+

@@ -5,7 +5,24 @@ import { PDFViewer} from '@react-pdf/renderer';
 import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the store
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+// Helper to format date as dd-mm-yyyy hh:mm for any ISO string
+function formatDateTime(val: any) {
+  if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
+    const date = new Date(val);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    // Always use UTC to match the Z (if present)
+    const day = pad(date.getUTCDate());
+    const month = pad(date.getUTCMonth() + 1);
+    const year = date.getUTCFullYear();
+    const hours = pad(date.getUTCHours());
+    const minutes = pad(date.getUTCMinutes());
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  }
+  return val;
+}
 
 function RentalSummary() {
   const navigate = useNavigate();
@@ -65,7 +82,7 @@ function RentalSummary() {
   };
   const handleCreateRental = async () => {
     if (!rentalData.documents?.find((doc: any) => doc.name === "Driver License") || !rentalData.documents?.find((doc: any) => doc.name === "ID Card")) {
-      alert('Please upload both Driver\'s License and ID Card before proceeding.');
+      toast.warn("Please upload both Driver's License and ID Card before proceeding.", { position: 'top-right' });
       return;
     }
 
@@ -93,20 +110,11 @@ function RentalSummary() {
   // Utility to replace {{field}} in template with value from data objects
   function populateTemplate(template: string, rentalData: any, car: any) {
     if (!template) return '';
-    // Helper to remove 'T' from ISO datetime if present
-    const formatDateTime = (val: any) => {
-      if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
-        return val.replace('T', ' ');
-      }
-      return val;
-    };
     return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
       // Support nested keys like client.firstName
       let value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
-      // Remove 'T' for startDate and endDate
-      if (key === 'startDate' || key === 'endDate') {
-        value = formatDateTime(value);
-      }
+      // Format any ISO date string
+      value = formatDateTime(value);
       return value !== undefined && value !== null ? value : '';
     });
   }
@@ -143,6 +151,8 @@ function RentalSummary() {
 
   return (
     <div className="space-y-6">
+      {/* Toast Container for notifications */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
@@ -177,8 +187,8 @@ function RentalSummary() {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <h2 className="text-xl font-semibold mb-4">Rental Period</h2>
           <div className="space-y-2">
-            <p><span className="font-medium">Start Date:</span> {rentalData.startDate}</p>
-            <p><span className="font-medium">End Date:</span> {rentalData.endDate}</p>
+            <p><span className="font-medium">Start Date:</span> {formatDateTime(rentalData.startDate)}</p>
+            <p><span className="font-medium">End Date:</span> {formatDateTime(rentalData.endDate)}</p>
           </div>
         </div>
 
