@@ -32,6 +32,7 @@ function RentalSummary() {
   const [rentalData, setRentalData] = useState<any>(null);
   const [car, setCar] = useState<any>(null);
   const [templateHtml, setTemplateHtml] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     const storedData = localStorage.getItem('rentalSummary');
@@ -86,6 +87,7 @@ function RentalSummary() {
       return;
     }
 
+    setLoading(true); // Start loading
     try {
       // Always generate the latest populated HTML template before sending
       let agreement = '';
@@ -104,6 +106,8 @@ function RentalSummary() {
       navigate('/rentals');
     } catch (error) {
       console.error('Error creating rental:', error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -273,11 +277,12 @@ function RentalSummary() {
 
       <div className="flex justify-end mt-8">
         <button
-          onClick={handleCreateRental} // Call the handleCreateRental function
-          className="flex items-center px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          onClick={handleCreateRental}
+          className="flex items-center px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed"
+          disabled={loading} // Disable while loading
         >
           <Check className="h-5 w-5 mr-2" />
-          Create Rental
+          {loading ? "Creating..." : "Create Rental"}
         </button>
       </div>
 
