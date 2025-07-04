@@ -13,12 +13,12 @@ function formatDateTime(val: any) {
   if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
     const date = new Date(val);
     const pad = (n: number) => n.toString().padStart(2, '0');
-    // Always use UTC to match the Z (if present)
-    const day = pad(date.getUTCDate());
-    const month = pad(date.getUTCMonth() + 1);
-    const year = date.getUTCFullYear();
-    const hours = pad(date.getUTCHours());
-    const minutes = pad(date.getUTCMinutes());
+    // Use local time to match the time entered in the form
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
   return val;
@@ -352,7 +352,24 @@ function RentalSummary() {
               </button>
             </div>
             <div className="flex-1 p-4 flex justify-center items-center">
-              <img src={showPreview} alt="Document Preview" className="max-h-full max-w-full" />
+              {/* Improved image display */}
+              <div style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img
+                  src={showPreview}
+                  alt="Document Preview"
+                  style={{
+                    maxHeight: '67vh',
+                    maxWidth: '100%',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    background: '#f9f9f9'
+                  }}
+                  className="shadow-md"
+                  draggable={false}
+                  onDragStart={e => e.preventDefault()}
+                />
+              </div>
             </div>
           </div>
         </div>

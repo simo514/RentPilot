@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Car, User, FileText, Eye } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
@@ -10,6 +10,11 @@ function RentalDetails() {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [showAgreement, setShowAgreement] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [rotate, setRotate] = useState(0); // Only rotate state
+  const dragStart = useRef<{ x: number; y: number; offsetX: number; offsetY: number } | null>(null);
 
   const { currentRental: rental, loading, error, fetchRentalById, returnCar } = useRentalHistoryStore();
 
@@ -187,15 +192,127 @@ function RentalDetails() {
           <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
             <div className="flex justify-between items-center p-4 border-b">
               <h2 className="text-xl font-semibold">Document Preview</h2>
-              <button
-                onClick={() => setShowPreview(null)} // Close the preview
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  onClick={() => {
+                    setZoom(z => Math.max(0.2, z - 0.2));
+                    setImgOffset({ x: 0, y: 0 });
+                  }}
+                  title="Zoom Out"
+                >−</button>
+                <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
+                <button
+                  className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  onClick={() => setZoom(z => Math.min(5, z + 0.2))}
+                  title="Zoom In"
+                >+</button>
+                <button
+                  className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 ml-2"
+                  onClick={() => { setZoom(1); setImgOffset({ x: 0, y: 0 }); setRotate(0); }}
+                  title="Reset Zoom"
+                >Reset</button>
+                {/* Flip button removed */}
+                <button
+                  className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 ml-2"
+                  onClick={() => setRotate(r => (r + 90) % 360)}
+                  title="Rotate 90°"
+                >Rotate</button>
+                <button
+                  onClick={() => { setShowPreview(null); setZoom(1); setImgOffset({ x: 0, y: 0 }); setRotate(0); }}
+                  className="text-gray-500 hover:text-gray-700 ml-4 text-2xl"
+                  title="Close"
+                >
+                  ×
+                </button>
+              </div>
             </div>
-            <div className="flex-1 p-4 flex justify-center items-center">
-              <img src={showPreview} alt="Document Preview" className="max-h-full max-w-full" />
+            <div className="flex-1 p-4 flex justify-center items-center select-none">
+              <div
+                style={{
+                  maxHeight: '100%',
+                  maxWidth: '100%',
+                  overflow: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default'
+                }}
+                onMouseDown={e => {
+                  if (zoom <= 1) return;
+                  setIsDragging(true);
+                  dragStart.current = {
+                    x: e.clientX,
+                    y: e.clientY,
+                    offsetX: imgOffset.x,
+                    offsetY: imgOffset.y
+                  };
+                }}
+                onMouseMove={e => {
+                  if (!isDragging || zoom <= 1 || !dragStart.current) return;
+                  const dx = e.clientX - dragStart.current.x;
+                  const dy = e.clientY - dragStart.current.y;
+                  setImgOffset({
+                    x: dragStart.current.offsetX + dx,
+                    y: dragStart.current.offsetY + dy
+                  });
+                }}
+                onMouseUp={() => {
+                  setIsDragging(false);
+                  dragStart.current = null;
+                }}
+                onMouseLeave={() => {
+                  setIsDragging(false);
+                  dragStart.current = null;
+                }}
+                onTouchStart={e => {
+                  if (zoom <= 1) return;
+                  setIsDragging(true);
+                  const touch = e.touches[0];
+                  dragStart.current = {
+                    x: touch.clientX,
+                    y: touch.clientY,
+                    offsetX: imgOffset.x,
+                    offsetY: imgOffset.y
+                  };
+                }}
+                onTouchMove={e => {
+                  if (!isDragging || zoom <= 1 || !dragStart.current) return;
+                  const touch = e.touches[0];
+                  const dx = touch.clientX - dragStart.current.x;
+                  const dy = touch.clientY - dragStart.current.y;
+                  setImgOffset({
+                    x: dragStart.current.offsetX + dx,
+                    y: dragStart.current.offsetY + dy
+                  });
+                }}
+                onTouchEnd={() => {
+                  setIsDragging(false);
+                  dragStart.current = null;
+                }}
+              >
+                <img
+                  src={showPreview}
+                  alt="Document Preview"
+                  style={{
+                    maxHeight: '67vh',
+                    maxWidth: '100%',
+                    objectFit: 'contain',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    background: '#f9f9f9',
+                    transform: `
+                      scale(${zoom}) 
+                      translate(${imgOffset.x / zoom}px, ${imgOffset.y / zoom}px)
+                      rotate(${rotate}deg)
+                    `,
+                    transition: isDragging ? 'none' : 'transform 0.2s'
+                  }}
+                  className="shadow-md"
+                  draggable={false}
+                  onDragStart={e => e.preventDefault()}
+                />
+              </div>
             </div>
           </div>
         </div>
