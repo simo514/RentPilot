@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Added import
 import useCarStore from '../store/carStore';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
+import useCountriesStore from '../store/countriesStore';
 import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, FaCar, FaMapMarkerAlt, FaCalendarAlt, FaMoneyBill } from 'react-icons/fa';
 
 function RentalForm() {
   const { cars, fetchCars } = useCarStore();
   const { loading } = useRentalHistoryStore();
+  const { countries, fetchCountries } = useCountriesStore();
   const navigate = useNavigate(); // Added navigate hook
 
   const [formData, setFormData] = useState({
@@ -54,7 +56,8 @@ function RentalForm() {
 
   useEffect(() => {
     fetchCars();
-  }, [fetchCars]);
+    fetchCountries();
+  }, [fetchCars, fetchCountries]);
 
   // Add effect to check date validity
   useEffect(() => {
@@ -245,14 +248,17 @@ function RentalForm() {
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <FaFlag className="text-yellow-400" /> Client Nationality
               </label>
-              <input
-                type="text"
+              <select
                 name="clientNationality"
                 value={formData.clientNationality}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
+              >
+                <option value="">Select a country</option>
+                {countries && countries.length > 0 && countries.map((country: any) => (
+                  <option key={country.code || country.name} value={country.name}>{country.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">

@@ -5,8 +5,7 @@ import { PDFViewer} from '@react-pdf/renderer';
 import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the store
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 // Helper to format date as dd-mm-yyyy hh:mm for any ISO string
 function formatDateTime(val: any) {
@@ -155,8 +154,7 @@ function RentalSummary() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Container for notifications */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
