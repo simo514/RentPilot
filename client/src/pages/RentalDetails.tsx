@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
+import DOMPurify from 'dompurify';
 
 function RentalDetails() {
   const { id } = useParams();
@@ -342,7 +343,7 @@ function RentalDetails() {
           <div className="flex-1 p-4 overflow-auto">
             <div
               id="rental-agreement-html-content"
-              dangerouslySetInnerHTML={{ __html: rental.rentalAgreement }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(rental.rentalAgreement) }}
               className="prose max-w-none"
             />
           </div>
