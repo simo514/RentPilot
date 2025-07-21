@@ -119,6 +119,20 @@ function RentalSummary() {
       let value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
       // Format any ISO date string
       value = formatDateTime(value);
+      // Sanitize ONLY the individual values, not the whole template
+      if (typeof value === 'string') {
+        // Limit length to prevent excessive content
+        if (value.length > 500) {
+          console.warn(`Value for ${key} is too long, truncating`);
+          value = value.substring(0, 500) + '...';
+        }
+        // Strip any HTML tags from user input values to prevent XSS
+        value = DOMPurify.sanitize(value, { 
+          ALLOWED_TAGS: [], 
+          ALLOWED_ATTR: [],
+          KEEP_CONTENT: true 
+        });
+      }
       return value !== undefined && value !== null ? value : '';
     });
   }
@@ -126,6 +140,13 @@ function RentalSummary() {
   const handleViewAgreement = async () => {
     const template = await getTemplate();
     if (template && template.html) {
+      // Optional: Basic template validation to ensure it's from your backend
+      if (!template.html.includes('SABADAM CAR') || !template.html.includes('<style>')) {
+        console.warn('Template appears to be modified or invalid');
+        setTemplateHtml('<p>Invalid template received.</p>');
+        return;
+      }
+      
       const populatedHtml = populateTemplate(template.html, rentalData, car);
       setTemplateHtml(populatedHtml);
       setShowPDF(false); // Hide PDF if open
@@ -309,16 +330,7 @@ function RentalSummary() {
             <div className="flex-1 p-4 overflow-auto">
               <div
                 id="template-html-content"
-                dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(templateHtml, {
-                    ADD_TAGS: ['style'],
-                    ADD_ATTR: ['style'],
-                    ALLOW_DATA_ATTR: false,
-                    ALLOWED_ATTR: ['style', 'class', 'id'],
-                    FORBID_TAGS: ['script', 'object', 'embed', 'iframe'],
-                    FORBID_ATTR: ['onerror', 'onload', 'onclick']
-                  })
-                }}
+                dangerouslySetInnerHTML={{ __html: templateHtml }}
                 className="prose max-w-none"
               />
             </div>
