@@ -6,6 +6,7 @@ import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the s
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
 import { toast } from 'react-toastify';
+import DOMPurify from 'dompurify';
 
 // Helper to format date as dd-mm-yyyy hh:mm for any ISO string
 function formatDateTime(val: any) {
@@ -308,7 +309,7 @@ function RentalSummary() {
             <div className="flex-1 p-4 overflow-auto">
               <div
                 id="template-html-content"
-                dangerouslySetInnerHTML={{ __html: templateHtml }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(templateHtml) }}
                 className="prose max-w-none"
               />
             </div>
