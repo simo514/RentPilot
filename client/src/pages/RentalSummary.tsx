@@ -309,7 +309,16 @@ function RentalSummary() {
             <div className="flex-1 p-4 overflow-auto">
               <div
                 id="template-html-content"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(templateHtml) }}
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(templateHtml, {
+                    ADD_TAGS: ['style'],
+                    ADD_ATTR: ['style'],
+                    ALLOW_DATA_ATTR: false,
+                    ALLOWED_ATTR: ['style', 'class', 'id'],
+                    FORBID_TAGS: ['script', 'object', 'embed', 'iframe'],
+                    FORBID_ATTR: ['onerror', 'onload', 'onclick']
+                  })
+                }}
                 className="prose max-w-none"
               />
             </div>
