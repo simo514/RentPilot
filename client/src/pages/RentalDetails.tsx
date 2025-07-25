@@ -29,9 +29,13 @@ function RentalDetails() {
   const handleDownloadAgreementPdf = () => {
     const element = document.getElementById('rental-agreement-html-content');
     if (element && rental && rental.rentalAgreement) {
+      // Add client last name to filename if available
+      const clientLastName = rental?.client?.lastName
+        ? rental.client.lastName.replace(/[^a-z0-9]/gi, '_')
+        : 'client';
       html2pdf().from(element).set({
         margin: 10,
-        filename: 'rental-agreement.pdf',
+        filename: `rental-agreement-${clientLastName}.pdf`,
         html2canvas: { scale: 2, useCORS: true }, // Added useCORS: true for external images
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).save();

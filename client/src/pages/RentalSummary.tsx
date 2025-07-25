@@ -26,7 +26,7 @@ function formatDateTime(val: any) {
 
 function RentalSummary() {
   const navigate = useNavigate();
-  const { createRental, getTemplate } = useRentalHistoryStore(); // add getTemplate
+  const { createRental, getTemplate } = useRentalHistoryStore(); 
   const [showPDF, setShowPDF] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [rentalData, setRentalData] = useState<any>(null);
@@ -39,9 +39,6 @@ function RentalSummary() {
     if (storedData) {
       setRentalData(JSON.parse(storedData));
     }
-  }, []);
-
-  useEffect(() => {
     const cars = localStorage.getItem('car');
     if (cars) {
       setCar(JSON.parse(cars));
@@ -165,9 +162,12 @@ function RentalSummary() {
     const element = document.getElementById('template-html-content');
     if (element && templateHtml) {
       // templateHtml is already populated with values
+      const clientLastName = rentalData?.client?.lastName
+        ? rentalData.client.lastName.replace(/[^a-z0-9]/gi, '_')
+        : 'client';
       html2pdf().from(element).set({
         margin: 10,
-        filename: 'rental-agreement.pdf',
+        filename: `rental-agreement-${clientLastName}.pdf`,
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).save();

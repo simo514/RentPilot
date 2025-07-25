@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import rentalRoutes from './routes/rental.routes.js';
 import carRoutes from './routes/car.routes.js';
 import contractTemplateRoutes from './routes/contractTemplate.routes.js';
+import { specs, swaggerUi } from './config/swagger.js';
 import path from 'path';
 
 const app = express();
@@ -27,6 +28,18 @@ app.use('/api/', limiter);
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'RentPilot API Documentation',
+}));
+
+// API Documentation redirect
+app.get('/docs', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 // Routes
 app.use('/api/rentals', rentalRoutes);
