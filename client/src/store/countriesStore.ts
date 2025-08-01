@@ -5,15 +5,25 @@ interface Country {
   code: string;
 }
 
+
+interface City {
+  code: number;
+  name: string;
+  arabicName: string;
+}
+
 interface CountriesStore {
   countries: Country[];
+  cities: City[];
   loading: boolean;
   error: string | null;
   fetchCountries: () => Promise<void>;
+  fetchMoroccanCities: () => Promise<void>;
 }
 
 const useCountriesStore = create<CountriesStore>((set) => ({
   countries: [],
+  cities: [],
   loading: false,
   error: null,
   fetchCountries: async () => {
@@ -31,6 +41,24 @@ const useCountriesStore = create<CountriesStore>((set) => ({
       set({ countries, loading: false });
     } catch (error: any) {
       set({ error: error.message || 'Error fetching countries', loading: false });
+    }
+  },
+  fetchMoroccanCities: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await fetch('https://madina.ysnirix.xyz/api/cities?format=json');
+      if (!res.ok) throw new Error('Failed to fetch Moroccan cities');
+      const data = await res.json();
+      // API returns array of { code, name, arabicName }
+      let cities = (data.results || []).map((city: any) => {
+        if (city.name === 'TANGER ASSILAH') {
+          return { ...city, name: 'TANGER', arabicName: 'طنجة' };
+        }
+        return city;
+      });
+      set({ cities, loading: false });
+    } catch (error: any) {
+      set({ error: error.message || 'Error fetching Moroccan cities', loading: false });
     }
   },
 }));

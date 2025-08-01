@@ -8,7 +8,7 @@ import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, 
 function RentalForm() {
   const { cars, fetchCars } = useCarStore();
   const { loading } = useRentalHistoryStore();
-  const { countries, fetchCountries } = useCountriesStore();
+  const { countries, fetchCountries, cities, fetchMoroccanCities } = useCountriesStore();
   const navigate = useNavigate(); // Added navigate hook
 
   const [formData, setFormData] = useState({
@@ -57,7 +57,8 @@ function RentalForm() {
   useEffect(() => {
     fetchCars();
     fetchCountries();
-  }, [fetchCars, fetchCountries]);
+    fetchMoroccanCities();
+  }, [fetchCars, fetchCountries, fetchMoroccanCities]);
 
   // Add effect to check date validity
   useEffect(() => {
@@ -321,30 +322,40 @@ function RentalForm() {
                   ))}
               </select>
             </div>
-            {/* Departure & Return Locations */}
+            {/* Departure & Return Locations (Dropdowns) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <FaMapMarkerAlt className="text-yellow-400" /> Departure Location
               </label>
-              <input
-                type="text"
+              <select
                 name="departureLocation"
                 value={formData.departureLocation}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-              />
+                required
+              >
+                <option value="">Select a city</option>
+                {cities && cities.length > 0 && cities.map((city: any) => (
+                  <option key={city.code} value={city.name}>{city.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
                 <FaMapMarkerAlt className="text-yellow-400" /> Return Location
               </label>
-              <input
-                type="text"
+              <select
                 name="returnLocation"
                 value={formData.returnLocation}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-              />
+                required
+              >
+                <option value="">Select a city</option>
+                {cities && cities.length > 0 && cities.map((city: any) => (
+                  <option key={city.code} value={city.name}>{city.name}</option>
+                ))}
+              </select>
             </div>
             {/* Dates */}
             <div>

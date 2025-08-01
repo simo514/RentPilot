@@ -39,7 +39,7 @@ function Dashboard() {
 
   const totalRentalsThisMonth = rentalsThisMonth.length;
 
-  const lastFiveRentals = rentals.slice(-5); // Get the last 5 rentals
+  const lastFiveRentals = rentals.slice(-5).reverse(); // Get the last 5 rentals, latest first
 
   return (
     <div className="space-y-6">
