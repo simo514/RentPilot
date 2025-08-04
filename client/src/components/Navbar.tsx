@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Car, Users, ClipboardList, LayoutDashboard } from 'lucide-react';
+import { Car, Users, ClipboardList, LayoutDashboard, BarChart2 } from 'lucide-react';
 
 function Navbar() {
   const location = useLocation();
@@ -12,6 +12,7 @@ function Navbar() {
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/rentals', label: 'Rentals', icon: ClipboardList },
     { path: '/cars', label: 'Cars', icon: Car },
+    { path: '/report', label: 'Report', icon: BarChart2 },
   ];
 
   return (
