@@ -6,6 +6,7 @@ import RentalHistory from './pages/RentalHistory';
 import Cars from './pages/Cars';
 import RentalSummary from './pages/RentalSummary';
 import RentalDetails from './pages/RentalDetails';
+import Report from './pages/Report';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="rentals" element={<RentalHistory />} />
           <Route path="rental/:id" element={<RentalDetails />} />
           <Route path="cars" element={<Cars />} />
+          <Route path="report" element={<Report />} />
           <Route path="rental-summary" element={<RentalSummary />} />
         </Route>
       </Routes>
