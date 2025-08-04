@@ -53,7 +53,7 @@ function Report() {
   const yearOptions = getYearRange(rentals);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-yellow-50 py-10 px-2 sm:px-0">
+    <div className="min-h-screen bg-gray-50 py-10 px-2 sm:px-0">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-yellow-200">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-extrabold text-yellow-900 tracking-tight flex items-center gap-2">
