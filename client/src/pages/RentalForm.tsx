@@ -23,8 +23,8 @@ function RentalForm() {
     clientLicenceNumber: '',
     clientLicenseIssued: '',
     carId: '',
-    departureLocation: '',
-    returnLocation: '',
+    departureLocation: 'TANGER',
+    returnLocation: 'TANGER',
     startDate: (() => {
       // Set startDate to current date and time in 'YYYY-MM-DDTHh:mm' 24-hour format for input type="datetime-local"
       const now = new Date();
