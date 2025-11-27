@@ -36,7 +36,7 @@ export const moroccanCities: City[] = [
   { code: 29, name: 'SALE', arabicName: 'سلا' },
   { code: 30, name: 'SETTAT', arabicName: 'سطات' },
   { code: 31, name: 'SIDI KACEM', arabicName: 'سيدي قاسم' },
-  { code: 32, name: 'TANGIER', arabicName: 'طنجة' },
+  { code: 32, name: 'TANGER', arabicName: 'طنجة' },
   { code: 33, name: 'TAOUNATE', arabicName: 'تاونات' },
   { code: 34, name: 'TAROUDANT', arabicName: 'تارودانت' },
   { code: 35, name: 'TATA', arabicName: 'طاطا' },
