@@ -1,15 +1,9 @@
 import { create } from 'zustand';
+import { moroccanCities, City } from '../utils/moroccanCities';
 
 interface Country {
   name: string;
   code: string;
-}
-
-
-interface City {
-  code: number;
-  name: string;
-  arabicName: string;
 }
 
 interface CountriesStore {
@@ -42,20 +36,11 @@ const useCountriesStore = create<CountriesStore>((set) => ({
     } catch (error: any) {
       set({ error: error.message || 'Error fetching countries', loading: false });
     }
-  },
-  fetchMoroccanCities: async () => {
+  },  fetchMoroccanCities: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch('https://madina.ysnirix.xyz/api/cities?format=json');
-      if (!res.ok) throw new Error('Failed to fetch Moroccan cities');
-      const data = await res.json();
-      // API returns array of { code, name, arabicName }
-      let cities = (data.results || []).map((city: any) => {
-        if (city.name === 'TANGER ASSILAH') {
-          return { ...city, name: 'TANGER', arabicName: 'طنجة' };
-        }
-        return city;
-      });
+      // Using local data instead of API
+      const cities = moroccanCities.sort((a, b) => a.name.localeCompare(b.name));
       set({ cities, loading: false });
     } catch (error: any) {
       set({ error: error.message || 'Error fetching Moroccan cities', loading: false });
