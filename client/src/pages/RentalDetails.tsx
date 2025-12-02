@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Car, User, FileText, Eye } from 'lucide-react';
+import { ArrowLeft, Calendar, Car, User, FileText, Eye, Paperclip } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 // @ts-ignore
@@ -146,7 +146,11 @@ function RentalDetails() {
 
         {/* View Documents */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4">Documents</h2>
+
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <Paperclip className="h-5 w-5 mr-2 text-primary-500" />
+            Documents
+          </h2>
           {rental.documents && rental.documents.length > 0 ? (
             <div className="space-y-4">
               {rental.documents.map((doc, index) => (
