@@ -47,6 +47,23 @@ router.post('/login', catchAsync(async (req, res, next) => {
     req.session.isAuthenticated = true;
     req.session.user = { username };
 
+    console.log('✅ Login successful, session set:', req.session);
+    console.log('🍪 Session ID:', req.sessionID);
+    console.log('🌍 NODE_ENV:', process.env.NODE_ENV);
+
+    // Explicitly save session before responding
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) {
+          console.error('❌ Session save error:', err);
+          reject(err);
+        } else {
+          console.log('✅ Session saved successfully');
+          resolve();
+        }
+      });
+    });
+
     return res.status(200).json({
       success: true,
       message: 'Login successful',
