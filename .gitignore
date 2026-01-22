@@ -11,6 +11,7 @@ client/.env
 
 # Logs
 *.log
+server/logs/
 
 # Build folders (optional)
 client/build/

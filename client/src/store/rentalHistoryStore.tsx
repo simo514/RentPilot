@@ -45,7 +45,8 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get('/api/rentals'); 
-      set({ rentals: response.data, loading: false });
+      const rentals = response.data.rentals || response.data; // Handle both old and new format
+      set({ rentals, loading: false });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to fetch rentals', loading: false });
       toast.error('Failed to fetch rentals'); // Error toast
@@ -55,7 +56,8 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
     set({ loading: true, error: null });
     try {
       const response = await api.get(`/api/rentals/${id}`);
-      set({ currentRental: response.data, loading: false });
+      const rental = response.data.rental || response.data; // Handle both old and new format
+      set({ currentRental: rental, loading: false });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to fetch rental', loading: false });
       toast.error('Failed to fetch rental details'); // Error toast
@@ -81,8 +83,9 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
   getTemplate: async () => {
     try {
       const response = await api.get('/api/templates');
+      const templates = response.data.templates || response.data; // Handle both old and new format
       // The backend returns an array, so return the first template or null
-      return response.data && response.data.length > 0 ? response.data[0] : null;
+      return templates && templates.length > 0 ? templates[0] : null;
     } catch (error) {
       toast.error('Failed to fetch contract template');
       return null;

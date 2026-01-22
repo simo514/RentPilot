@@ -1,29 +1,44 @@
 import { Link } from 'react-router-dom';
 import { PlusCircle, DollarSign, Calendar, Car } from 'lucide-react';
-import useRentalHistoryStore from '../store/rentalHistoryStore';
 import useCarStore from '../store/carStore';
-import { useEffect } from 'react';
-
-
+import { useEffect, useState } from 'react';
+import api from '../lib/axios';
+import { rental } from '../utils/cars';
 
 function Dashboard() {
-  const { fetchRentals, rentals } = useRentalHistoryStore();
   const { fetchCars, cars } = useCarStore();
+  const [recentRentals, setRecentRentals] = useState<rental[]>([]);
+  const [loading, setLoading] = useState(false);
 
+  // Fetch only 5 most recent rentals for dashboard
   useEffect(() => {
-    fetchRentals();
-  }, [fetchRentals]);
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      try {
+        // Fetch recent 5 rentals
+        const recentResponse = await api.get('/api/rentals?limit=5&sort=-createdAt');
+        const recent = recentResponse.data.rentals || recentResponse.data;
+        setRecentRentals(recent);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchDashboardData();
+  }, []);
 
   useEffect(() => {
     fetchCars();
   }, [fetchCars]);
 
-  // Calculate total revenue and total rentals for the current month
+  // Calculate stats from fetched data
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  const rentalsThisMonth = rentals.filter(rental => {
+  const rentalsThisMonth = recentRentals.filter((rental: rental) => {
     const startDate = rental.startDate ? new Date(rental.startDate) : null;
     return (
       startDate &&
@@ -33,13 +48,11 @@ function Dashboard() {
   });
 
   const totalRevenue = rentalsThisMonth.reduce(
-    (sum, rental) => sum + (typeof rental.totalPrice === 'number' ? rental.totalPrice : 0),
+    (sum: number, rental: rental) => sum + (typeof rental.totalPrice === 'number' ? rental.totalPrice : 0),
     0
   );
 
   const totalRentalsThisMonth = rentalsThisMonth.length;
-
-  const lastFiveRentals = rentals.slice(-5).reverse(); // Get the last 5 rentals, latest first
 
   return (
     <div className="space-y-6">
@@ -82,7 +95,7 @@ function Dashboard() {
             <Calendar className="h-10 w-10 text-primary-500" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Active Rentals</p>
-              <p className="text-2xl font-semibold text-gray-900">{rentals.filter((rental) => rental.status=='active').length}</p>
+              <p className="text-2xl font-semibold text-gray-900">{recentRentals.filter((rental: rental) => rental.status === 'active').length}</p>
             </div>
           </div>
         </div>
@@ -102,20 +115,40 @@ function Dashboard() {
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-100">
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Rentals</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {lastFiveRentals.map((rental) => (
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Rentals</h2>
+            <Link 
+              to="/rentals" 
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+            >
+              View All →
+            </Link>
+          </div>
+          {loading ? (
+            <div className="py-8 text-center text-sm text-gray-500">
+              Loading rentals...
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Car</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {recentRentals.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                        No rentals found. Create your first rental to get started!
+                      </td>
+                    </tr>
+                  ) : (
+                    recentRentals.map((rental: rental) => (
                   <tr key={rental._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {rental.client
@@ -140,14 +173,16 @@ function Dashboard() {
                         ? new Date(rental.endDate).toLocaleDateString()
                         : 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {rental.totalPrice !== undefined ? `$${rental.totalPrice}` : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {rental.totalPrice !== undefined ? `$${rental.totalPrice}` : 'N/A'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

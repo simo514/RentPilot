@@ -4,14 +4,22 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import session from 'express-session';
+import morgan from 'morgan';
 import rentalRoutes from './routes/rental.routes.js';
 import carRoutes from './routes/car.routes.js';
 import contractTemplateRoutes from './routes/contractTemplate.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import { specs, swaggerUi } from './config/swagger.js';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
+import logger from './utils/logger.js';
 import path from 'path';
 
 const app = express();
+
+// Logging middleware (development only)
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 app.use('/static', express.static(path.join(process.cwd(), 'uploads')));
 
@@ -45,7 +53,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (1 month)
       sameSite: 'lax',
     },
   })
@@ -68,5 +76,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/templates', contractTemplateRoutes);
+
+// Handle 404 - undefined routes
+app.use(notFound);
+
+// Global error handling middleware (must be last)
+app.use(errorHandler);
 
 export default app;

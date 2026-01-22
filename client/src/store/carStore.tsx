@@ -25,7 +25,8 @@ const useCarStore = create<CarStore>((set) => ({
     set({ loading: true });
     try {
       const res = await api.get('/api/cars');
-      set({ cars: res.data, loading: false });
+      const cars = res.data.cars || res.data; // Handle both old and new format
+      set({ cars, loading: false });
     } catch (err: any) {
       set({ error: err.message, loading: false });
     }
@@ -45,8 +46,9 @@ const useCarStore = create<CarStore>((set) => ({
     addCarAsync: async (car) => {
       try {
         const res = await api.post('/api/cars', car);
+        const newCar = res.data.car || res.data; // Handle both old and new format
         set((state) => ({
-          cars: [...state.cars, res.data],
+          cars: [...state.cars, newCar],
         }));
       } catch (err: any) {
         set({ error: err.message });
@@ -55,9 +57,10 @@ const useCarStore = create<CarStore>((set) => ({
     updateCarAsync: async (id, updatedData) => {
       try {
         const response = await api.put(`/api/cars/${id}`, updatedData);
+        const updatedCar = response.data.car || response.data; // Handle both old and new format
         set((state) => ({
           cars: state.cars.map((car) =>
-            car._id === id ? response.data : car
+            car._id === id ? updatedCar : car
           ),
         }));
       } catch (error) {

@@ -86,30 +86,23 @@ router.post(
  * @swagger
  * /api/rentals:
  *   get:
- *     summary: Get all rentals
+ *     summary: Get all rentals (with optional limit and sorting)
  *     tags: [Rentals]
  *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [active, returned]
- *         description: Filter by rental status
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
- *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           minimum: 1
  *           maximum: 100
- *           default: 10
- *         description: Number of rentals per page
+ *         description: Limit number of results (e.g., limit=5 for dashboard)
+ *         example: 5
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *         description: Sort field (prefix with - for descending, e.g., -createdAt for newest first)
+ *         example: -createdAt
  *     responses:
  *       200:
  *         description: List of rentals retrieved successfully
@@ -118,6 +111,16 @@ router.post(
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 results:
+ *                   type: integer
+ *                   description: Number of rentals returned
+ *                 rentals:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Rental'
  *                 message:
  *                   type: string
  *                   example: "Rentals retrieved successfully"

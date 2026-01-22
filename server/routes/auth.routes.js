@@ -1,4 +1,6 @@
 import express from 'express';
+import AppError from '../utils/AppError.js';
+import { catchAsync } from '../middleware/errorHandler.js';
 
 const router = express.Router();
 
@@ -28,8 +30,13 @@ const router = express.Router();
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', (req, res) => {
+router.post('/login', catchAsync(async (req, res, next) => {
   const { username, password } = req.body;
+
+  // Validate input
+  if (!username || !password) {
+    throw new AppError('Please provide username and password', 400);
+  }
 
   // Validate credentials against environment variables
   if (
@@ -40,18 +47,15 @@ router.post('/login', (req, res) => {
     req.session.isAuthenticated = true;
     req.session.user = { username };
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'Login successful',
       user: { username },
     });
   }
 
-  return res.status(401).json({
-    success: false,
-    message: 'Invalid username or password',
-  });
-});
+  throw new AppError('Invalid username or password', 401);
+}));
 
 /**
  * @swagger
@@ -63,22 +67,19 @@ router.post('/login', (req, res) => {
  *       200:
  *         description: Logout successful
  */
-router.post('/logout', (req, res) => {
+router.post('/logout', catchAsync(async (req, res, next) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to logout',
-      });
+      throw new AppError('Failed to logout. Please try again.', 500);
     }
 
     res.clearCookie('connect.sid');
-    return res.json({
+    return res.status(200).json({
       success: true,
       message: 'Logout successful',
     });
   });
-});
+}));
 
 /**
  * @swagger
@@ -94,7 +95,7 @@ router.post('/logout', (req, res) => {
  */
 router.get('/me', (req, res) => {
   if (req.session && req.session.isAuthenticated) {
-    return res.json({
+    return res.status(200).json({
       success: true,
       isAuthenticated: true,
       user: req.session.user,
