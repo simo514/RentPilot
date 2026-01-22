@@ -2,8 +2,12 @@ import express from 'express';
 import rentalController from '../controllers/rental.controller.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { createRentalSchema } from '../validators/rental.validator.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Apply authentication to all rental routes
+router.use(requireAuth);
 
 /**
  * @swagger

@@ -3,6 +3,10 @@ const router = express.Router();
 import carController from '../controllers/car.controller.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { createCarSchema } from '../validators/car.validator.js';
+import { requireAuth } from '../middleware/auth.js';
+
+// Apply authentication to all car routes
+router.use(requireAuth);
 
 /**
  * @swagger
