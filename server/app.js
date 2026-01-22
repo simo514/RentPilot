@@ -16,6 +16,9 @@ import path from 'path';
 
 const app = express();
 
+// Trust proxy - CRITICAL for Render deployment
+app.set('trust proxy', 1);
+
 // Logging middleware (development only)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -33,6 +36,8 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
@@ -43,6 +48,8 @@ const allowedOrigins = process.env.CLIENT_URL
 
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('🔍 CORS Request from origin:', origin);
+    console.log('🔍 Allowed origins:', allowedOrigins);
     
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
@@ -50,6 +57,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
+      console.error('❌ CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -64,11 +72,13 @@ app.use(
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
+    proxy: true, // Trust the reverse proxy
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (1 month)
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost', // Don't set domain in production for cross-site
     },
   })
 );
