@@ -43,6 +43,7 @@ const allowedOrigins = process.env.CLIENT_URL
 
 app.use(cors({
   origin: (origin, callback) => {
+    
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
@@ -67,7 +68,7 @@ app.use(
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (1 month)
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     },
   })
 );
