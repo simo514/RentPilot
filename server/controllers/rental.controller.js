@@ -88,9 +88,27 @@ const rentalController = {
 
   // 2. Get all rentals (with optional limit and sort)
   getAllRentals: catchAsync(async (req, res, next) => {
-    const { limit, sort = '-createdAt' } = req.query;
+    const { limit, sort = '-createdAt', month, year } = req.query;
     
-    let query = Rental.find().populate('car');
+    let filter = {};
+    
+    // Apply month/year filter if provided
+    if (month !== undefined && year !== undefined) {
+      const monthNum = parseInt(month);
+      const yearNum = parseInt(year);
+      
+      const startDate = new Date(Date.UTC(yearNum, monthNum, 1, 0, 0, 0, 0));
+      const endDate = new Date(Date.UTC(yearNum, monthNum + 1, 1, 0, 0, 0, 0));
+      
+      filter = {
+        startDate: {
+          $gte: startDate,
+          $lt: endDate
+        }
+      };
+    }
+    
+    let query = Rental.find(filter).populate('car');
     
     // Apply sorting (default: newest first)
     query = query.sort(sort);

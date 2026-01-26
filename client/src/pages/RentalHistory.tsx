@@ -14,20 +14,16 @@ function RentalHistory() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [date, setDate] = useState(new Date());
 
-  const filteredRentals = rentals.filter((rental) => {
-    const rentalStartDate = new Date(rental.startDate);
-    return (
-      rentalStartDate.getMonth() === date.getMonth() &&
-      rentalStartDate.getFullYear() === date.getFullYear()
-    );
-  });
-
-
-
   useEffect(() => {
-    fetchRentals();
-    console.log(rentals);
-  }, [fetchRentals]);
+    // Fetch rentals filtered by the selected month and year
+    fetchRentals(date.getMonth(), date.getFullYear());
+  }, [date, fetchRentals]);
+
+  const handleDateChange = (value: Date) => {
+    setDate(value);
+    setShowCalendar(false);
+    // fetchRentals will be called by useEffect when date changes
+  };
 
   return (
     <div className="p-6">
@@ -57,8 +53,8 @@ function RentalHistory() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRentals.length > 0 ? (
-                [...filteredRentals] // Use filteredRentals instead of rentals
+              {rentals.length > 0 ? (
+                [...rentals]
                   .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
                   .map((rental) => (
                     <tr key={rental._id} className="hover:bg-gray-50">
@@ -131,10 +127,7 @@ function RentalHistory() {
               <X className="h-5 w-5" />
             </button>
             <Calendar
-              onChange={(value) => {
-                setDate(value as Date);
-                setShowCalendar(false);
-              }}
+              onChange={(value) => handleDateChange(value as Date)}
               value={date}
               className="bg-white rounded-lg shadow-lg border border-gray-200 p-4"
               tileClassName="rounded-full hover:bg-primary-100"

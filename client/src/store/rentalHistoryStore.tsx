@@ -11,7 +11,7 @@ interface rentalStore {
   loading: boolean;
   error: string | null;
   currentRental: rental | null;
-  fetchRentals: () => Promise<void>;
+  fetchRentals: (month?: number, year?: number) => Promise<void>;
   fetchRentalById: (id: string) => Promise<void>;
   returnCar: (id: string) => Promise<void>;
   createRental: (rentalData: RentalCreationData) => Promise<void>;
@@ -41,10 +41,16 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
     }
   },
 
-  fetchRentals: async () => {
+  fetchRentals: async (month?: number, year?: number) => {
     set({ loading: true, error: null });
     try {
-      const response = await api.get('/api/rentals'); 
+      let url = '/api/rentals';
+      
+      if (month !== undefined && year !== undefined) {
+        url += `?month=${month}&year=${year}`;
+      }
+      
+      const response = await api.get(url); 
       const rentals = response.data.rentals || response.data; // Handle both old and new format
       set({ rentals, loading: false });
     } catch (error) {
