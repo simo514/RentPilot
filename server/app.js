@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import morgan from 'morgan';
 import rentalRoutes from './routes/rental.routes.js';
 import carRoutes from './routes/car.routes.js';
@@ -62,19 +63,26 @@ app.use(cors({
 
 app.use(express.json({ limit: '10mb' }));
 
-// Session configuration
+// Session configuration with MongoDB store for persistent sessions
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      touchAfter: 24 * 3600, // Lazy session update (once per 24 hours unless session data changes)
+      crypto: {
+        secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production'
+      }
+    }),
     proxy: true, // Trust the reverse proxy
     cookie: {
       secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days (1 month)
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost', // Don't set domain in production for cross-site
+      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost', 
     },
   })
 );
