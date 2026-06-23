@@ -175,221 +175,131 @@ function RentalSummary() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
 
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="h-5 w-5 mr-2" />
+        <button onClick={() => navigate(-1)} className="btn-secondary">
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Rental Summary</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4">Client Information</h2>
-          <div className="space-y-2">
-            <p><span className="font-medium">Name:</span> {rentalData.client.firstName} {rentalData.client.lastName} </p>
-            <p><span className="font-medium">Phone:</span> {rentalData.client.phone}</p>
-            <p><span className="font-medium">Email:</span> {rentalData.client.email}</p>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Client Information</h2>
+          <dl className="space-y-2">
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Name</dt><dd className="font-medium text-gray-900">{rentalData.client.firstName} {rentalData.client.lastName}</dd></div>
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Phone</dt><dd className="font-medium text-gray-900">{rentalData.client.phone}</dd></div>
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Email</dt><dd className="font-medium text-gray-900">{rentalData.client.email}</dd></div>
+          </dl>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4">Vehicle Details</h2>
-          <div className="space-y-2">
-            <p>
-              <span className="font-medium">Selected Car:</span> {car.make} {car.model}
-              <span className="block text-xs text-gray-500">Matricule: {car.matricule}</span> {/* Added matricule */}
-            </p>
-          </div>
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Vehicle Details</h2>
+          <dl className="space-y-2">
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Car</dt><dd className="font-medium text-gray-900">{car.make} {car.model}</dd></div>
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Matricule</dt><dd className="font-medium text-gray-900">{car.matricule}</dd></div>
+          </dl>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4">Rental Period</h2>
-          <div className="space-y-2">
-            <p><span className="font-medium">Start Date:</span> {formatDateTime(rentalData.startDate)}</p>
-            <p><span className="font-medium">End Date:</span> {formatDateTime(rentalData.endDate)}</p>
-          </div>
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Rental Period</h2>
+          <dl className="space-y-2">
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">Start Date</dt><dd className="font-medium text-gray-900">{formatDateTime(rentalData.startDate)}</dd></div>
+            <div className="flex justify-between text-sm"><dt className="text-gray-500">End Date</dt><dd className="font-medium text-gray-900">{formatDateTime(rentalData.endDate)}</dd></div>
+          </dl>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4">Documents</h2>
-          <button
-            onClick={handleViewAgreement}
-            className="flex items-center text-primary-600 hover:text-primary-700"
-          >
-            <FileText className="h-5 w-5 mr-2" />
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4">Documents</h2>
+          <button onClick={handleViewAgreement} className="btn-secondary text-sm">
+            <FileText className="h-4 w-4 mr-2 text-primary-500" />
             View Rental Agreement
           </button>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 w-full">
-        <h2 className="text-xl font-semibold mb-6">Required Documents</h2>
+      <div className="card p-6">
+        <h2 className="text-base font-semibold text-gray-900 mb-5">Required Documents</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">Driver's License</h3>
-            <div className="flex items-center space-x-4">
-              <label className="flex-1">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileUpload('driverLicense', file);
-                  }}
-                />
-                <div className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                  <Upload className="h-5 w-5 mr-2 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    {rentalData.documents?.find((doc: any) => doc.name === "Driver License") ? "Driver License Uploaded" : "Upload Driver's License"}
-                  </span>
+          {(['driverLicense', 'idCard'] as const).map((type) => {
+            const docName = type === 'driverLicense' ? 'Driver License' : 'ID Card';
+            const label = type === 'driverLicense' ? "Driver's License" : 'ID Card';
+            const uploaded = rentalData.documents?.find((doc: any) => doc.name === docName);
+            return (
+              <div key={type} className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-700">{label}</h3>
+                <div className="flex items-center gap-3">
+                  <label className="flex-1 cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => { const file = e.target.files?.[0]; if (file) handleFileUpload(type, file); }} />
+                    <div className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed transition-colors ${
+                      uploaded ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-primary-300 hover:bg-primary-50/30'
+                    }`}>
+                      <Upload className="h-4 w-4" />
+                      <span className="text-sm font-medium">{uploaded ? `${docName} Uploaded ✓` : `Upload ${label}`}</span>
+                    </div>
+                  </label>
+                  {uploaded && (
+                    <button onClick={() => handlePreview(type)} className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 text-gray-500 hover:text-primary-600 hover:border-primary-300 bg-white shadow-sm transition-colors">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
-              </label>
-              {rentalData.documents?.find((doc: any) => doc.name === "Driver License") && (
-                <button
-                  onClick={() => handlePreview('driverLicense')}
-                  className="p-2 text-primary-600 hover:text-primary-700"
-                >
-                  <Eye className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900">ID Card</h3>
-            <div className="flex items-center space-x-4">
-              <label className="flex-1">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileUpload('idCard', file);
-                  }}
-                />
-                <div className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                  <Upload className="h-5 w-5 mr-2 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    {rentalData.documents?.find((doc: any) => doc.name === "ID Card") ? "ID Card Uploaded" : "Upload ID Card"}
-                  </span>
-                </div>
-              </label>
-              {rentalData.documents?.find((doc: any) => doc.name === "ID Card") && (
-                <button
-                  onClick={() => handlePreview('idCard')}
-                  className="p-2 text-primary-600 hover:text-primary-700"
-                >
-                  <Eye className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="flex justify-end mt-8">
-        <button
-          onClick={handleCreateRental}
-          className="flex items-center px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed"
-          disabled={loading} // Disable while loading
-        >
-          <Check className="h-5 w-5 mr-2" />
-          {loading ? "Creating..." : "Create Rental"}
+      <div className="flex justify-end">
+        <button onClick={handleCreateRental} disabled={loading} className="btn-primary">
+          <Check className="h-4 w-4 mr-2" />
+          {loading ? 'Creating…' : 'Confirm & Create Rental'}
         </button>
       </div>
 
       {/* Rental Agreement Template Modal */}
       {templateHtml && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col overflow-auto">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Rental Agreement Template</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-auto shadow-2xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">Rental Agreement Template</h2>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleDownloadTemplatePdf}
-                  className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
-                >
-                  Download
-                </button>
-                <button
-                  onClick={() => setTemplateHtml(null)}
-                  className="text-gray-500 hover:text-gray-700 ml-2"
-                >
-                  ×
-                </button>
+                <button onClick={handleDownloadTemplatePdf} className="btn-primary text-xs py-1.5">Download</button>
+                <button onClick={() => setTemplateHtml(null)} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
               </div>
             </div>
-            <div className="flex-1 p-4 overflow-auto">
-              <div
-                id="template-html-content"
-                dangerouslySetInnerHTML={{ __html: templateHtml }}
-                className="prose max-w-none"
-              />
+            <div className="flex-1 p-5 overflow-auto">
+              <div id="template-html-content" dangerouslySetInnerHTML={{ __html: templateHtml }} className="prose max-w-none" />
             </div>
           </div>
         </div>
       )}
 
       {showPDF && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Rental Agreement</h2>
-              <button
-                onClick={() => setShowPDF(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">Rental Agreement</h2>
+              <button onClick={() => setShowPDF(false)} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
             </div>
-
             <div className="flex-1 p-4">
-              <PDFViewer style={{ width: '100%', height: '100%' }}>
-              </PDFViewer>
+              <PDFViewer style={{ width: '100%', height: '100%' }} />
             </div>
           </div>
         </div>
       )}
 
       {showPreview && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Document Preview</h2>
-              <button
-                onClick={() => setShowPreview(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">Document Preview</h2>
+              <button onClick={() => setShowPreview(null)} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
             </div>
             <div className="flex-1 p-4 flex justify-center items-center">
-              {/* Improved image display */}
-              <div style={{ maxHeight: '100%', maxWidth: '100%', overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img
-                  src={showPreview}
-                  alt="Document Preview"
-                  style={{
-                    maxHeight: '67vh',
-                    maxWidth: '100%',
-                    objectFit: 'contain',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    background: '#f9f9f9'
-                  }}
-                  className="shadow-md"
-                  draggable={false}
-                  onDragStart={e => e.preventDefault()}
-                />
-              </div>
+              <img src={showPreview} alt="Document Preview" style={{ maxHeight: '67vh', maxWidth: '100%', objectFit: 'contain', borderRadius: '8px' }} className="shadow-md" draggable={false} onDragStart={e => e.preventDefault()} />
             </div>
           </div>
         </div>

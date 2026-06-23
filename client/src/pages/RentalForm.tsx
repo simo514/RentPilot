@@ -161,268 +161,153 @@ function RentalForm() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Create New Rental</h1>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Client Fields */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaUser className="text-yellow-400" /> Client First Name
-              </label>
-              <input
-                type="text"
-                name="clientFirstName"
-                value={formData.clientFirstName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaUser className="text-yellow-400" /> Client Last Name
-              </label>
-              <input
-                type="text"
-                name="clientLastName"
-                value={formData.clientLastName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaPhone className="text-yellow-400" /> Client Phone
-              </label>
-              <input
-                type="tel"
-                name="clientPhone"
-                value={formData.clientPhone}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaEnvelope className="text-yellow-400" /> Client Email
-              </label>
-              <input
-                type="email"
-                name="clientEmail"
-                value={formData.clientEmail}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaBirthdayCake className="text-yellow-400" /> Client Date of Birth
-              </label>
-              <input
-                type="date"
-                name="clientDateOfBirth"
-                value={formData.clientDateOfBirth}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50 text-gray-700 placeholder-gray-400 appearance-none"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaHome className="text-yellow-400" /> Client Address
-              </label>
-              <input
-                type="text"
-                name="clientAddress"
-                value={formData.clientAddress}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaFlag className="text-yellow-400" /> Client Nationality
-              </label>
-              <select
-                name="clientNationality"
-                value={formData.clientNationality}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-              >
-                <option value="">Select a country</option>
-                {countries && countries.length > 0 && countries.map((country: any) => (
-                  <option key={country.code || country.name} value={country.name}>{country.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaIdCard className="text-yellow-400" /> Client ID
-              </label>
-              <input
-                type="text"
-                name="clientID"
-                value={formData.clientID}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaIdCard className="text-yellow-400" /> Licence Number
-              </label>
-              <input
-                type="text"
-                name="clientLicenceNumber"
-                value={formData.clientLicenceNumber}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                // removed required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaCalendarAlt className="text-yellow-400" /> Client License Issued
-              </label>
-              <input
-                type="date"
-                name="clientLicenseIssued"
-                value={formData.clientLicenseIssued}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50 text-gray-700 placeholder-gray-400 appearance-none"
-                // removed required
-              />
-            </div>
-            {/* Car Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaCar className="text-yellow-400" /> Select Car
-              </label>
-              <select
-                name="carId"
-                value={formData.carId}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              >
-                <option value="">Select a car</option>
-                {cars
-                  .filter((car) => car.available)
-                  .map((car) => (
-                    <option key={car._id} value={car._id}>
-                      {car.make} {car.model} - {car.matricule}
-                    </option>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Create New Rental</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Fill in the details below to register a new rental.</p>
+      </div>
+      <div className="card p-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Client Info */}
+          <div>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">Client Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaUser className="text-primary-400 text-xs" /> First Name
+                </label>
+                <input type="text" name="clientFirstName" value={formData.clientFirstName} onChange={handleChange} className="input-modern" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaUser className="text-primary-400 text-xs" /> Last Name
+                </label>
+                <input type="text" name="clientLastName" value={formData.clientLastName} onChange={handleChange} className="input-modern" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaPhone className="text-primary-400 text-xs" /> Phone
+                </label>
+                <input type="tel" name="clientPhone" value={formData.clientPhone} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaEnvelope className="text-primary-400 text-xs" /> Email
+                </label>
+                <input type="email" name="clientEmail" value={formData.clientEmail} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaBirthdayCake className="text-primary-400 text-xs" /> Date of Birth
+                </label>
+                <input type="date" name="clientDateOfBirth" value={formData.clientDateOfBirth} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaHome className="text-primary-400 text-xs" /> Address
+                </label>
+                <input type="text" name="clientAddress" value={formData.clientAddress} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaFlag className="text-primary-400 text-xs" /> Nationality
+                </label>
+                <select name="clientNationality" value={formData.clientNationality} onChange={handleChange} className="input-modern">
+                  <option value="">Select a country</option>
+                  {countries && countries.length > 0 && countries.map((country: any) => (
+                    <option key={country.code || country.name} value={country.name}>{country.name}</option>
                   ))}
-              </select>
-            </div>
-            {/* Departure & Return Locations (Dropdowns) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaMapMarkerAlt className="text-yellow-400" /> Departure Location
-              </label>
-              <select
-                name="departureLocation"
-                value={formData.departureLocation}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              >
-                <option value="">Select a city</option>
-                {cities && cities.length > 0 && cities.map((city: any) => (
-                  <option key={city.code} value={city.name}>{city.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaMapMarkerAlt className="text-yellow-400" /> Return Location
-              </label>
-              <select
-                name="returnLocation"
-                value={formData.returnLocation}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              >
-                <option value="">Select a city</option>
-                {cities && cities.length > 0 && cities.map((city: any) => (
-                  <option key={city.code} value={city.name}>{city.name}</option>
-                ))}
-              </select>
-            </div>
-            {/* Dates */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaCalendarAlt className="text-yellow-400" /> Start Date
-              </label>
-              <input
-                type="datetime-local"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50 text-gray-700 placeholder-gray-400 appearance-none"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaCalendarAlt className="text-yellow-400" /> End Date
-              </label>
-              <input
-                type="datetime-local"
-                name="endDate"
-                value={formData.endDate}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50 text-gray-700 placeholder-gray-400 appearance-none"
-                required
-              />
-              {dateWarning && (
-                <span className="text-xs text-red-500">{dateWarning}</span>
-              )}
-            </div>
-            {/* Daily Rate */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaMoneyBill className="text-yellow-400" /> Daily Rate
-              </label>
-              <input
-                type="number"
-                name="dailyRate"
-                value={formData.dailyRate}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition duration-150 ease-in-out bg-gray-50"
-                required
-              />
-            </div>
-            {/* Total Price */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                <FaMoneyBill className="text-yellow-400" /> Total Price
-              </label>
-              <input
-                type="number"
-                name="totalPrice"
-                value={formData.totalPrice}
-                readOnly
-                className="mt-1 block w-full rounded-lg border border-gray-300 shadow shadow-md px-3 py-2 bg-gray-100 text-gray-700"
-                tabIndex={-1}
-              />
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaIdCard className="text-primary-400 text-xs" /> Client ID
+                </label>
+                <input type="text" name="clientID" value={formData.clientID} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaIdCard className="text-primary-400 text-xs" /> Licence Number
+                </label>
+                <input type="text" name="clientLicenceNumber" value={formData.clientLicenceNumber} onChange={handleChange} className="input-modern" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaCalendarAlt className="text-primary-400 text-xs" /> License Issued
+                </label>
+                <input type="date" name="clientLicenseIssued" value={formData.clientLicenseIssued} onChange={handleChange} className="input-modern" />
+              </div>
             </div>
           </div>
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={loading || isReturnBeforeStart}
-              className="w-full md:w-auto px-6 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600"
-            >
-              {loading ? 'Creating...' : 'Create Rental'}
+
+          {/* Rental Details */}
+          <div>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 pb-2 border-b border-gray-100">Rental Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaCar className="text-primary-400 text-xs" /> Select Car
+                </label>
+                <select name="carId" value={formData.carId} onChange={handleChange} className="input-modern" required>
+                  <option value="">Select a car</option>
+                  {cars.filter((car) => car.available).map((car) => (
+                    <option key={car._id} value={car._id}>{car.make} {car.model} - {car.matricule}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaMapMarkerAlt className="text-primary-400 text-xs" /> Departure Location
+                </label>
+                <select name="departureLocation" value={formData.departureLocation} onChange={handleChange} className="input-modern" required>
+                  <option value="">Select a city</option>
+                  {cities && cities.length > 0 && cities.map((city: any) => (
+                    <option key={city.code} value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaMapMarkerAlt className="text-primary-400 text-xs" /> Return Location
+                </label>
+                <select name="returnLocation" value={formData.returnLocation} onChange={handleChange} className="input-modern" required>
+                  <option value="">Select a city</option>
+                  {cities && cities.length > 0 && cities.map((city: any) => (
+                    <option key={city.code} value={city.name}>{city.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaCalendarAlt className="text-primary-400 text-xs" /> Start Date
+                </label>
+                <input type="datetime-local" name="startDate" value={formData.startDate} onChange={handleChange} className="input-modern" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaCalendarAlt className="text-primary-400 text-xs" /> End Date
+                </label>
+                <input type="datetime-local" name="endDate" value={formData.endDate} onChange={handleChange} className="input-modern" required />
+                {dateWarning && <p className="mt-1 text-xs text-red-500">{dateWarning}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaMoneyBill className="text-primary-400 text-xs" /> Daily Rate
+                </label>
+                <input type="number" name="dailyRate" value={formData.dailyRate} onChange={handleChange} className="input-modern" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1.5">
+                  <FaMoneyBill className="text-primary-400 text-xs" /> Total Price
+                </label>
+                <input type="number" name="totalPrice" value={formData.totalPrice} readOnly className="input-modern bg-gray-50 cursor-not-allowed" tabIndex={-1} />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button type="submit" disabled={loading || isReturnBeforeStart} className="btn-primary">
+              {loading ? 'Creating…' : 'Create Rental'}
             </button>
           </div>
         </form>

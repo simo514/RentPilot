@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
+import { BarChart2 } from 'lucide-react';
+import { rental } from '../utils/cars';
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
-
-
-import { rental } from '../utils/cars';
 
 function getYearRange(rentals: rental[]): number[] {
   if (!rentals.length) return [new Date().getFullYear()];
@@ -31,7 +30,6 @@ function Report() {
   }, [fetchRentals]);
 
   useEffect(() => {
-    // Group rentals by month and filter out months with no rentals for selected year
     const report = months.map((month, idx) => {
       const rentalsInMonth = rentals.filter(rental => {
         const date = rental.startDate ? new Date(rental.startDate) : null;
@@ -41,62 +39,93 @@ function Report() {
         (sum, rental) => sum + (typeof rental.totalPrice === 'number' ? rental.totalPrice : 0),
         0
       );
-      return {
-        month,
-        count: rentalsInMonth.length,
-        totalRevenue,
-      };
+      return { month, count: rentalsInMonth.length, totalRevenue };
     }).filter(row => row.count > 0);
     setMonthlyReport(report);
   }, [rentals, selectedYear]);
 
   const yearOptions = getYearRange(rentals);
 
+  const totalRevenue = monthlyReport.reduce((s, r) => s + r.totalRevenue, 0);
+  const totalRentals = monthlyReport.reduce((s, r) => s + r.count, 0);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-2 sm:px-0">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8 border border-yellow-200">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-extrabold text-yellow-900 tracking-tight flex items-center gap-2">
-            <svg xmlns='http://www.w3.org/2000/svg' className='h-7 w-7 text-yellow-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M3 3v18h18M9 17V9m4 8V5m4 12v-6' /></svg>
-            Monthly Report
-          </h1>
-          <div className="flex items-center gap-2">
-            <label htmlFor="year-picker" className="font-medium text-gray-700">Year:</label>
-            <select
-              id="year-picker"
-              className="border border-yellow-100 rounded-lg px-4 py-2 bg-yellow-50 text-yellow-900 font-semibold focus:outline-none focus:ring-2 focus:ring-yellow-300 transition"
-              value={selectedYear}
-              onChange={e => setSelectedYear(Number(e.target.value))}
-            >
-              {yearOptions.map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+    <div className="space-y-7 animate-fade-in">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Monthly Report</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Financial summary by month</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="year-picker" className="text-sm font-medium text-gray-600">Year</label>
+          <select
+            id="year-picker"
+            className="input-modern py-2"
+            value={selectedYear}
+            onChange={e => setSelectedYear(Number(e.target.value))}
+          >
+            {yearOptions.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="card p-5 flex items-center gap-4">
+          <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-primary-50 shrink-0">
+            <BarChart2 className="h-5 w-5 text-primary-600" strokeWidth={2} />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-gray-500">Total Rentals ({selectedYear})</p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">{totalRentals}</p>
           </div>
         </div>
+        <div className="card p-5 flex items-center gap-4">
+          <div className="flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-50 shrink-0">
+            <span className="text-emerald-600 font-bold text-base">$</span>
+          </div>
+          <div>
+            <p className="text-xs font-medium text-gray-500">Total Revenue ({selectedYear})</p>
+            <p className="text-2xl font-bold text-gray-900 mt-0.5">${totalRevenue.toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-yellow-200 rounded-xl shadow-sm">
+          <table className="min-w-full">
             <thead>
-              <tr>
-                <th className="px-6 py-3 border-b-2 border-yellow-200 text-left text-xs font-bold text-yellow-700 uppercase tracking-wider">Month</th>
-                <th className="px-6 py-3 border-b-2 border-yellow-200 text-left text-xs font-bold text-yellow-700 uppercase tracking-wider">Number of Rentals</th>
-                <th className="px-6 py-3 border-b-2 border-yellow-200 text-left text-xs font-bold text-yellow-700 uppercase tracking-wider">Total Revenue</th>
+              <tr className="bg-gray-50/60">
+                <th className="px-6 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Month</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Rentals</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Revenue</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {monthlyReport.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center py-8 text-gray-400 text-lg">No rentals for this year.</td>
+                  <td colSpan={3} className="py-16 text-center">
+                    <BarChart2 className="h-8 w-8 text-gray-200 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-gray-400">No rentals for {selectedYear}</p>
+                  </td>
                 </tr>
               ) : (
-                monthlyReport.map((row, idx) => (
-                  <tr
-                    key={row.month}
-                    className={`transition hover:bg-yellow-50 ${idx % 2 === 0 ? 'bg-yellow-50/40' : 'bg-white'}`}
-                  >
-                    <td className="px-6 py-4 border-b border-yellow-50 text-yellow-900 font-medium">{row.month}</td>
-                    <td className="px-6 py-4 border-b border-yellow-50">{row.count}</td>
-                    <td className="px-6 py-4 border-b border-yellow-50 font-semibold text-green-700">${row.totalRevenue.toLocaleString()}</td>
+                monthlyReport.map((row) => (
+                  <tr key={row.month} className="hover:bg-gray-50/60 transition-colors">
+                    <td className="px-6 py-3.5 text-sm font-medium text-gray-900">{row.month}</td>
+                    <td className="px-6 py-3.5">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-primary-50 text-primary-700 text-sm font-semibold">
+                        {row.count}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <span className="text-sm font-bold text-emerald-700">${row.totalRevenue.toLocaleString()}</span>
+                    </td>
                   </tr>
                 ))
               )}

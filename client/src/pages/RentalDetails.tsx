@@ -47,148 +47,146 @@ function RentalDetails() {
   if (!rental) return <p className="text-center mt-10">Rental not found.</p>;
 
   return (
-  <div className="p-6">
-  {/* Top bar with two buttons */}
-  <div className="mb-6 flex justify-between items-center">
+  <div className="space-y-7 animate-fade-in">
+  {/* Top bar */}
+  <div className="flex justify-between items-center">
     <button
       onClick={() => navigate('/rentals')}
-      className="flex items-center text-gray-600 hover:text-gray-900"
+      className="btn-secondary"
     >
-      <ArrowLeft className="h-5 w-5 mr-2" />
-      Back to Rental History
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      Back to Rentals
     </button>
 
     {rental.status === 'active' && (
       <button
-        className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
-        onClick={() => {returnCar(rental._id); navigate('/rentals');}}
+        className="btn-primary"
+        onClick={() => { returnCar(rental._id); navigate('/rentals'); }}
       >
-        Return the car
+        Return Car
       </button>
     )}
   </div>
 
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Client Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <User className="h-5 w-5 mr-2 text-primary-500" />
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-50">
+              <User className="h-4 w-4 text-violet-600" />
+            </div>
             Client Information
           </h2>
-          <div className="space-y-3">
-            <p className="text-gray-600">First Name: <span className="text-gray-900">{rental.client.firstName}</span></p>
-            <p className="text-gray-600">Last Name: <span className="text-gray-900">{rental.client.lastName}</span></p>
-            <p className="text-gray-600">Phone: <span className="text-gray-900">{rental.client.phone}</span></p>
-            <p className="text-gray-600">Email: <span className="text-gray-900">{rental.client.email}</span></p>
-          </div>
+          <dl className="space-y-2.5">
+            {[['First Name', rental.client.firstName], ['Last Name', rental.client.lastName], ['Phone', rental.client.phone], ['Email', rental.client.email]].map(([k, v]) => (
+              <div key={k} className="flex justify-between text-sm">
+                <dt className="text-gray-500">{k}</dt>
+                <dd className="font-medium text-gray-900 text-right">{v || '—'}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
         {/* Vehicle Details */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <Car className="h-5 w-5 mr-2 text-primary-500" />
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50">
+              <Car className="h-4 w-4 text-blue-600" />
+            </div>
             Vehicle Details
           </h2>
-          <div className="space-y-3">
-            <p className="text-gray-600">Make & Model: <span className="text-gray-900">{rental.car.make} {rental.car.model}</span></p>
-            <p className="text-gray-600">Year: <span className="text-gray-900">{rental.car.year}</span></p>
-            <p className="text-gray-600">License Plate: <span className="text-gray-900">{rental.car.matricule}</span></p>
-          </div>
+          <dl className="space-y-2.5">
+            {[['Make & Model', `${rental.car.make} ${rental.car.model}`], ['Year', rental.car.year], ['License Plate', rental.car.matricule]].map(([k, v]) => (
+              <div key={k} className="flex justify-between text-sm">
+                <dt className="text-gray-500">{k}</dt>
+                <dd className="font-medium text-gray-900 text-right">{v || '—'}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
         {/* Rental Period */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <Calendar className="h-5 w-5 mr-2 text-primary-500" />
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary-50">
+              <Calendar className="h-4 w-4 text-primary-600" />
+            </div>
             Rental Period
           </h2>
-          <div className="space-y-3">
-            <p className="text-gray-600">
-              Start Date:{" "}
-              <span className="text-gray-900">
-                {new Date(rental.startDate).toLocaleString('en-GB', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                })}
-              </span>
-            </p>
-            <p className="text-gray-600">
-              End Date:{" "}
-              <span className="text-gray-900">
-                {new Date(rental.endDate).toLocaleString('en-GB', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: false,
-                })}
-              </span>
-            </p>
-            <p className="text-gray-600">Daily Rate: <span className="text-gray-900">${rental.dailyRate}</span></p>
-            <p className="text-gray-600">Total Amount: <span className="text-gray-900">${rental.totalPrice}</span></p>
-            <p className="text-gray-600">Status: 
-              <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                rental.status === 'active' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-yellow-100 text-gray-800'
-              }`}>
-                {rental.status}
-              </span>
-            </p>
-          </div>
+          <dl className="space-y-2.5">
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Start Date</dt>
+              <dd className="font-medium text-gray-900">{new Date(rental.startDate).toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">End Date</dt>
+              <dd className="font-medium text-gray-900">{new Date(rental.endDate).toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Daily Rate</dt>
+              <dd className="font-medium text-gray-900">${rental.dailyRate}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Total Amount</dt>
+              <dd className="font-bold text-gray-900">${rental.totalPrice}</dd>
+            </div>
+            <div className="flex justify-between text-sm items-center">
+              <dt className="text-gray-500">Status</dt>
+              <dd>
+                <span className={rental.status === 'active' ? 'badge-active' : 'badge-completed'}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${rental.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+                  {rental.status}
+                </span>
+              </dd>
+            </div>
+          </dl>
         </div>
 
-        {/* View Documents */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <Paperclip className="h-5 w-5 mr-2 text-primary-500" />
+        {/* Documents */}
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-50">
+              <Paperclip className="h-4 w-4 text-amber-600" />
+            </div>
             Documents
           </h2>
           {rental.documents && rental.documents.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-2.5">
               {rental.documents.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <p className="text-gray-600">{doc.name}</p>
+                <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-xl border border-gray-100">
+                  <p className="text-sm text-gray-700 font-medium">{doc.name}</p>
                   <button
-                    onClick={() => setShowPreview(doc.image)} // Set the preview image
-                    className="text-primary-600 hover:text-primary-700"
+                    onClick={() => setShowPreview(doc.image)}
+                    className="text-xs font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
                   >
-                    View
+                    <Eye className="h-3.5 w-3.5" /> View
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-600">No documents uploaded.</p>
+            <p className="text-sm text-gray-400">No documents uploaded.</p>
           )}
         </div>
 
-        {/* Rental Agreement View */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <FileText className="h-5 w-5 mr-2 text-primary-500" />
+        {/* Rental Agreement */}
+        <div className="card p-6">
+          <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-50">
+              <FileText className="h-4 w-4 text-emerald-600" />
+            </div>
             Rental Agreement
           </h2>
           {rental.rentalAgreement ? (
-            <div className="flex gap-2">
-              <button
-                className="text-primary-600 hover:text-primary-700 flex items-center"
-                onClick={() => setShowAgreement(true)}
-              >
-                <Eye className="h-5 w-5 mr-1" />
-                View
-              </button>
-              {/* Download button removed from here */}
-            </div>
+            <button
+              className="btn-secondary text-sm"
+              onClick={() => setShowAgreement(true)}
+            >
+              <Eye className="h-4 w-4 mr-1.5" />
+              View Agreement
+            </button>
           ) : (
-            <p className="text-gray-600">No rental agreement available.</p>
+            <p className="text-sm text-gray-400">No rental agreement available.</p>
           )}
         </div>
 
@@ -196,10 +194,10 @@ function RentalDetails() {
 
       {/* Preview Modal */}
       {showPreview && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Document Preview</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
+            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+              <h2 className="text-base font-semibold text-gray-900">Document Preview</h2>
               <div className="flex items-center gap-2">
                 <button
                   className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
@@ -328,10 +326,10 @@ function RentalDetails() {
 
       {/* Rental Agreement Modal */}
       {showAgreement && rental.rentalAgreement && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="bg-white rounded-lg w-full max-w-4xl h-[80vh] flex flex-col overflow-auto">
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-xl font-semibold">Rental Agreement</h2>
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-auto shadow-2xl">
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+            <h2 className="text-base font-semibold text-gray-900">Rental Agreement</h2>
             <div className="flex items-center gap-2">
               <button
                 className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
