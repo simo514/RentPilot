@@ -57,6 +57,7 @@ function Login() {
         </div>
 
         <div className="relative space-y-4">
+          <p className="text-amber-200 text-sm font-semibold uppercase tracking-widest">Sabadam Car</p>
           <h2 className="text-4xl font-bold text-white leading-snug">
             Manage your fleet<br />with confidence.
           </h2>
@@ -65,7 +66,7 @@ function Login() {
           </p>
         </div>
 
-        <p className="relative text-amber-100/70 text-sm">© 2026 RentPilot. All rights reserved.</p>
+        <p className="relative text-amber-100/70 text-sm">© 2026 Sabadam Car. All rights reserved.</p>
       </div>
 
       {/* Right login panel */}
