@@ -179,12 +179,19 @@ const rentalController = {
 
   // 5. Delete a rental
   deleteRental: catchAsync(async (req, res, next) => {
-    const rental = await Rental.findByIdAndDelete(req.params.id);
-    
+    const rental = await Rental.findById(req.params.id);
+
     if (!rental) {
       throw new AppError('Rental not found', 404);
     }
-    
+
+    const car = await Car.findById(rental.car);
+    if (car && !car.available) {
+      throw new AppError('Cannot delete an active rental while the car is unavailable', 400);
+    }
+
+    await Rental.findByIdAndDelete(req.params.id);
+
     res.status(200).json({
       success: true,
       message: 'Rental deleted successfully',
