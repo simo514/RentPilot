@@ -6,9 +6,11 @@ import api from '../lib/axios';
 // Define the store type
 interface CarStore {
   cars: Car[];
+  minimalCars: Pick<Car, '_id' | 'make' | 'model' | 'matricule' | 'available'>[];
   loading: boolean;
   error: string | null;
   fetchCars: () => Promise<void>;
+  fetchCarsMinimal: () => Promise<void>;
   addCar: (car: Car) => void;
   addCarAsync: (car: Omit<Car, '_id'>) => Promise<void>;
   updateCarAvailability: (carId: string, available: boolean) => void;
@@ -18,8 +20,19 @@ interface CarStore {
 
 const useCarStore = create<CarStore>((set) => ({
   cars: [],
+  minimalCars: [],
   loading: false,
   error: null,
+
+  fetchCarsMinimal: async () => {
+    set({ loading: true });
+    try {
+      const res = await api.get('/api/cars/minimal');
+      set({ minimalCars: res.data.cars, loading: false });
+    } catch (err: any) {
+      set({ error: err.message, loading: false });
+    }
+  },
 
   fetchCars: async () => {
     set({ loading: true });

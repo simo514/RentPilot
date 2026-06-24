@@ -16,11 +16,10 @@ const rentalController = {
       departureLocation,
       returnLocation,
       rentalAgreement,
-      documents,
       totalPrice,
       rentalDuration,
       createdAt,
-    } = req.body;
+    } = JSON.parse(req.body.data);
 
     // Validate daily rate
     if (!dailyRate || dailyRate <= 0) {
@@ -46,15 +45,21 @@ const rentalController = {
       throw new AppError('End date must be after start date', 400);
     }
 
-    // Handle document uploads to Cloudinary (base64 only)
+    // Upload document images from multipart files to Cloudinary
     let rentalDocuments = [];
-    if (documents && Array.isArray(documents)) {
+    if (req.files) {
+      const fileMap = [
+        { key: 'driverLicense', name: 'Driver License' },
+        { key: 'idCard', name: 'ID Card' },
+      ];
       rentalDocuments = await Promise.all(
-        documents.map(async (doc) => ({
-          name: doc.name,
-          image: await uploadImage(doc.image),
-          uploadedAt: new Date(),
-        }))
+        fileMap
+          .filter(({ key }) => req.files[key]?.[0])
+          .map(async ({ key, name }) => ({
+            name,
+            image: await uploadImage(req.files[key][0].buffer),
+            uploadedAt: new Date(),
+          }))
       );
     }
 
@@ -108,7 +113,10 @@ const rentalController = {
       };
     }
     
-    let query = Rental.find(filter).populate('car');
+    let query = Rental.find(filter)
+     .populate('car', 'make model matricule')
+     .select('client.firstName client.lastName car startDate endDate status _id'); 
+
     
     // Apply sorting (default: newest first)
     query = query.sort(sort);
@@ -129,7 +137,7 @@ const rentalController = {
 
   // 3. Get rental by ID
   getRentalById: catchAsync(async (req, res, next) => {
-    const rental = await Rental.findById(req.params.id).populate('car');
+    const rental = await Rental.findById(req.params.id).populate('car', '-image');
     
     if (!rental) {
       throw new AppError('Rental not found', 404);

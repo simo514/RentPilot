@@ -32,7 +32,8 @@ function RentalSummary() {
   const [rentalData, setRentalData] = useState<any>(null);
   const [car, setCar] = useState<any>(null);
   const [templateHtml, setTemplateHtml] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
+  const [documentFiles, setDocumentFiles] = useState<{ driverLicense?: File; idCard?: File }>({});
 
   useEffect(() => {
     const storedData = localStorage.getItem('rentalSummary');
@@ -50,36 +51,18 @@ function RentalSummary() {
   }
 
   const handleFileUpload = (type: 'driverLicense' | 'idCard', file: File) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string; // Save as Base64 string
-      setRentalData((prev: any) => ({
-        ...prev,
-        documents: [
-          ...(prev.documents || []), // Ensure documents array is initialized
-          {
-            name: type === 'driverLicense' ? "Driver License" : "ID Card",
-            image: base64,
-            uploadedAt: new Date().toISOString(),
-          },
-        ],
-      }));
-    };
-    reader.readAsDataURL(file);
+    setDocumentFiles((prev) => ({ ...prev, [type]: file }));
   };
 
   const handlePreview = (type: 'driverLicense' | 'idCard') => {
-    const document = rentalData.documents?.find(
-      (doc: any) => doc.name === (type === 'driverLicense' ? "Driver License" : "ID Card")
-    );
-    if (document) {
-      setShowPreview(document.image); // Directly use the base64 data as the preview URL
-    } else {
-      console.error('Document not found for preview');
+    const file = documentFiles[type];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setShowPreview(url);
     }
   };
   const handleCreateRental = async () => {
-    if (!rentalData.documents?.find((doc: any) => doc.name === "Driver License") || !rentalData.documents?.find((doc: any) => doc.name === "ID Card")) {
+    if (!documentFiles.driverLicense || !documentFiles.idCard) {
       toast.warn("Please upload both Driver's License and ID Card before proceeding.", { position: 'top-right' });
       return;
     }
@@ -96,10 +79,10 @@ function RentalSummary() {
           rentalAgreement: agreement,
         }));
       }
-      await createRental({
-        ...rentalData,
-        rentalAgreement: agreement,
-      });
+      await createRental(
+        { ...rentalData, rentalAgreement: agreement },
+        documentFiles
+      );
       navigate('/rentals');
     } catch (error) {
       console.error('Error creating rental:', error);
@@ -226,7 +209,7 @@ function RentalSummary() {
           {(['driverLicense', 'idCard'] as const).map((type) => {
             const docName = type === 'driverLicense' ? 'Driver License' : 'ID Card';
             const label = type === 'driverLicense' ? "Driver's License" : 'ID Card';
-            const uploaded = rentalData.documents?.find((doc: any) => doc.name === docName);
+            const uploaded = documentFiles[type === 'driverLicense' ? 'driverLicense' : 'idCard'];
             return (
               <div key={type} className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-700">{label}</h3>
@@ -296,7 +279,7 @@ function RentalSummary() {
           <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
             <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">Document Preview</h2>
-              <button onClick={() => setShowPreview(null)} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
+              <button onClick={() => { URL.revokeObjectURL(showPreview); setShowPreview(null); }} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
             </div>
             <div className="flex-1 p-4 flex justify-center items-center">
               <img src={showPreview} alt="Document Preview" style={{ maxHeight: '67vh', maxWidth: '100%', objectFit: 'contain', borderRadius: '8px' }} className="shadow-md" draggable={false} onDragStart={e => e.preventDefault()} />

@@ -6,7 +6,7 @@ import useCountriesStore from '../store/countriesStore';
 import { FaUser, FaPhone, FaEnvelope, FaBirthdayCake, FaHome, FaFlag, FaIdCard, FaCar, FaMapMarkerAlt, FaCalendarAlt, FaMoneyBill } from 'react-icons/fa';
 
 function RentalForm() {
-  const { cars, fetchCars } = useCarStore();
+  const { minimalCars: cars, fetchCarsMinimal } = useCarStore();
   const { loading } = useRentalHistoryStore();
   const { countries, fetchCountries, cities, fetchMoroccanCities } = useCountriesStore();
   const navigate = useNavigate(); // Added navigate hook
@@ -55,10 +55,10 @@ function RentalForm() {
   const [dateWarning, setDateWarning] = useState('');
 
   useEffect(() => {
-    fetchCars();
+    fetchCarsMinimal();
     fetchCountries();
     fetchMoroccanCities();
-  }, [fetchCars, fetchCountries, fetchMoroccanCities]);
+  }, [fetchCarsMinimal, fetchCountries, fetchMoroccanCities]);
 
   // Add effect to check date validity
   useEffect(() => {

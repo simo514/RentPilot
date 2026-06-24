@@ -14,7 +14,7 @@ interface rentalStore {
   fetchRentals: (month?: number, year?: number) => Promise<void>;
   fetchRentalById: (id: string) => Promise<void>;
   returnCar: (id: string) => Promise<void>;
-  createRental: (rentalData: RentalCreationData) => Promise<void>;
+  createRental: (rentalData: RentalCreationData, files?: { driverLicense?: File; idCard?: File }) => Promise<void>;
   getTemplate: () => Promise<any | null>;
 }
 
@@ -24,20 +24,26 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
   error: null,
   currentRental: null,
 
-  createRental: async (rentalData: RentalCreationData) => {
+  createRental: async (rentalData: RentalCreationData, files: { driverLicense?: File; idCard?: File } = {}) => {
     set({ loading: true, error: null });
     try {
-      const response = await api.post('/api/rentals', rentalData);
+      const formData = new FormData();
+      formData.append('data', JSON.stringify(rentalData));
+      if (files.driverLicense) formData.append('driverLicense', files.driverLicense);
+      if (files.idCard) formData.append('idCard', files.idCard);
+      const response = await api.post('/api/rentals', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       set((state) => ({
         rentals: [...state.rentals, response.data.rental || response.data],
         loading: false,
       }));
-      toast.success(response.data.message || 'Rental created!'); // Use response message
+      toast.success(response.data.message || 'Rental created!');
     } catch (error: any) {   
       set({ error: error instanceof Error ? error.message : 'Failed to create rental', loading: false });
       toast.error(
         error?.response?.data?.message || 'Failed to create rental'
-      ); // Use error response message
+      ); 
     }
   },
 

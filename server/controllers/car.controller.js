@@ -1,11 +1,18 @@
 import Car from '../models/Car.js';
 import AppError from '../utils/AppError.js';
 import { catchAsync } from '../middleware/errorHandler.js';
+import uploadImage from '../services/uploadImage.js';
 
 const carController = {
   // Create a car
   createCar: catchAsync(async (req, res, next) => {
-    const newCar = new Car(req.body);
+    const carData = { ...req.body };
+
+    if (carData.image) {
+      carData.image = await uploadImage(carData.image);
+    }
+
+    const newCar = new Car(carData);
     const savedCar = await newCar.save();
     
     res.status(201).json({
@@ -75,11 +82,30 @@ const carController = {
     });
   }),
 
+  // Get minimal car data (no image) for dropdowns/forms
+  getCarsMinimal: catchAsync(async (req, res, next) => {
+    const cars = await Car.find()
+      .select('make model matricule available')
+      .sort('make');
+
+    res.status(200).json({
+      success: true,
+      results: cars.length,
+      cars,
+    });
+  }),
+
   // Update car details
   updateCar: catchAsync(async (req, res, next) => {
+    const carData = { ...req.body };
+
+    if (carData.image) {
+      carData.image = await uploadImage(carData.image);
+    }
+
     const updated = await Car.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      carData,
       { new: true, runValidators: true }
     );
     

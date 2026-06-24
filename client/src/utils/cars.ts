@@ -46,11 +46,5 @@ export interface Document {
     startDate: string;
     endDate: string;
     dailyRate: number;
-    documents?: {
-      name: string;
-      image: string;
-      uploadedAt: string; // Date as a string
-    }[]; 
-    rentalAgreement?: string; 
-
+    rentalAgreement?: string;
   }

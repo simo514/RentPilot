@@ -1,8 +1,7 @@
 import express from 'express';
 import rentalController from '../controllers/rental.controller.js';
-import { validateRequest } from '../middleware/validateRequest.js';
-import { createRentalSchema } from '../validators/rental.validator.js';
 import { requireAuth } from '../middleware/auth.js';
+import { upload } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -78,7 +77,10 @@ router.use(requireAuth);
  */
 router.post(
   '/',
-  validateRequest(createRentalSchema),
+  upload.fields([
+    { name: 'driverLicense', maxCount: 1 },
+    { name: 'idCard', maxCount: 1 },
+  ]),
   rentalController.createRental
 );
 

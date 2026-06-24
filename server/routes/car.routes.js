@@ -129,6 +129,7 @@ router.post('/', validateRequest(createCarSchema), carController.createCar);
  *         $ref: '#/components/responses/ServerError'
  */
 router.get('/', carController.getAllCars);
+router.get('/minimal', carController.getCarsMinimal);
 
 /**
  * @swagger
