@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Car, RentalFormData } from '../utils/cars';
 import { FileText, ArrowLeft, Check, Eye, Upload } from 'lucide-react';
-import { PDFViewer} from '@react-pdf/renderer';
-import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the store
-// @ts-ignore
-import html2pdf from 'html2pdf.js';
+import useRentalHistoryStore from '../store/rentalHistoryStore';
 import { toast } from 'react-toastify';
 import DOMPurify from 'dompurify';
 
@@ -29,7 +26,6 @@ function RentalSummary() {
   const navigate = useNavigate();
   const location = useLocation();
   const { createRental, getTemplate } = useRentalHistoryStore(); 
-  const [showPDF, setShowPDF] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
   const [templateHtml, setTemplateHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,15 +34,6 @@ function RentalSummary() {
   const locationState = location.state as { rentalSummary: RentalFormData; car: Car } | null;
   const [rentalData, setRentalData] = useState<RentalFormData | null>(locationState?.rentalSummary ?? null);
   const [car] = useState<Car | null>(locationState?.car ?? null);
-
-  if (!rentalData || !car) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-gray-500">No rental data found. Please fill the rental form first.</p>
-        <button className="btn-primary" onClick={() => navigate('/rentals/new')}>Go to Rental Form</button>
-      </div>
-    );
-  }
 
   const handleFileUpload = (type: 'driverLicense' | 'idCard', file: File) => {
     setDocumentFiles((prev) => ({ ...prev, [type]: file }));
@@ -69,6 +56,15 @@ function RentalSummary() {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!rentalData || !car) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-gray-500">No rental data found. Please fill the rental form first.</p>
+        <button className="btn-primary" onClick={() => navigate('/rentals/new')}>Go to Rental Form</button>
+      </div>
+    );
+  }
   const handleCreateRental = async () => {
     if (!documentFiles.driverLicense || !documentFiles.idCard) {
       toast.warn("Please upload both Driver's License and ID Card before proceeding.", { position: 'top-right' });
@@ -89,9 +85,9 @@ function RentalSummary() {
         documentFiles
       );
       navigate('/rentals');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating rental:', error);
-      const message = error?.response?.data?.message || error?.message || 'Failed to create rental. Please try again.';
+      const message = (error as any)?.response?.data?.message || (error as Error)?.message || 'Failed to create rental. Please try again.';
       toast.error(message, { position: 'top-right' });
     } finally {
       setLoading(false); // Stop loading
@@ -138,7 +134,6 @@ function RentalSummary() {
       
       const populatedHtml = populateTemplate(template.html, rentalData, car);
       setTemplateHtml(populatedHtml);
-      setShowPDF(false); // Hide PDF if open
 
       // Add the populated agreement to rentalData
       setRentalData((prev) => prev ? { ...prev, rentalAgreement: populatedHtml } : prev);
@@ -147,10 +142,12 @@ function RentalSummary() {
     }
   };
 
-  const handleDownloadTemplatePdf = () => {
+  const handleDownloadTemplatePdf = async () => {
     const element = document.getElementById('template-html-content');
     if (element && templateHtml) {
-      // templateHtml is already populated with values
+      // Dynamically import html2pdf only when the user clicks Download
+      // @ts-ignore
+      const { default: html2pdf } = await import('html2pdf.js');
       const clientLastName = rentalData?.client?.lastName
         ? rentalData.client.lastName.replace(/[^a-z0-9]/gi, '_')
         : 'client';
@@ -261,20 +258,6 @@ function RentalSummary() {
             </div>
             <div className="flex-1 p-5 overflow-auto">
               <div id="template-html-content" dangerouslySetInnerHTML={{ __html: templateHtml }} className="prose max-w-none" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showPDF && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col shadow-2xl">
-            <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
-              <h2 className="text-base font-semibold text-gray-900">Rental Agreement</h2>
-              <button onClick={() => setShowPDF(false)} className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors text-xl">×</button>
-            </div>
-            <div className="flex-1 p-4">
-              <PDFViewer style={{ width: '100%', height: '100%' }} />
             </div>
           </div>
         </div>

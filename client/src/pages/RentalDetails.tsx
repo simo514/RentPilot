@@ -2,8 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Car, User, FileText, Eye, Paperclip } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
-// @ts-ignore
-import html2pdf from 'html2pdf.js';
 
 function RentalDetails() {
   const { id } = useParams();
@@ -26,17 +24,19 @@ function RentalDetails() {
   }, [id, fetchRentalById]);
 
   // Use the modal content for PDF download
-  const handleDownloadAgreementPdf = () => {
+  const handleDownloadAgreementPdf = async () => {
     const element = document.getElementById('rental-agreement-html-content');
     if (element && rental && rental.rentalAgreement) {
-      // Add client last name to filename if available
+      // Dynamically import html2pdf only when the user clicks Download
+      // @ts-ignore
+      const { default: html2pdf } = await import('html2pdf.js');
       const clientLastName = rental?.client?.lastName
         ? rental.client.lastName.replace(/[^a-z0-9]/gi, '_')
         : 'client';
       html2pdf().from(element).set({
         margin: 10,
         filename: `rental-agreement-${clientLastName}.pdf`,
-        html2canvas: { scale: 2, useCORS: true }, // Added useCORS: true for external images
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).save();
     }
