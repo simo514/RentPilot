@@ -15,6 +15,14 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 import path from 'path';
 
+// Crash early in production if SESSION_SECRET is missing or still set to the insecure default
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'your-secret-key-change-in-production') {
+    console.error('FATAL: SESSION_SECRET env var is missing or set to the insecure default. Set a strong random secret before deploying.');
+    process.exit(1);
+  }
+}
+
 const app = express();
 
 // Trust proxy - CRITICAL for Render deployment
@@ -27,9 +35,18 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/static', express.static(path.join(process.cwd(), 'uploads')));
 
-// Security headers
+// Security headers — strict CSP for the JSON API
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for now since you're using inline HTML
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:     ["'none'"],
+      connectSrc:     ["'self'"],  // allow same-origin XHR/fetch (e.g. healthchecks)
+      frameAncestors: ["'none'"],  // prevent clickjacking
+      objectSrc:      ["'none'"],
+      baseUri:        ["'none'"],
+      formAction:     ["'none'"],
+    },
+  },
 }));
 
 // Rate limiting - allows 100 requests per 15 minutes per IP
@@ -88,6 +105,21 @@ app.use(
 );
 
 // Swagger Documentation
+// Override CSP specifically for /api-docs — Swagger UI requires inline scripts/styles
+app.use('/api-docs', (req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",  // swagger-ui bundles inline scripts
+      "style-src 'self' 'unsafe-inline'",   // swagger-ui uses inline styles
+      "img-src 'self' data:",                // swagger-ui logo uses data URIs
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+    ].join('; ')
+  );
+  next();
+});
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',

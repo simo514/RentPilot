@@ -6,7 +6,7 @@ import 'react-calendar/dist/Calendar.css';
 import { useNavigate } from 'react-router-dom';
 
 function RentalHistory() {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const { rentals, loading, error, fetchRentals } = useRentalHistoryStore();
   const [showCalendar, setShowCalendar] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -76,8 +76,7 @@ function RentalHistory() {
                     </td>
                   </tr>
                 ) : (
-                  [...rentals]
-                    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+                  rentals
                     .map((rental) => (
                       <tr key={rental._id} className="hover:bg-gray-50/60 transition-colors">
                         <td className="px-6 py-3.5 whitespace-nowrap">
@@ -110,7 +109,7 @@ function RentalHistory() {
                         </td>
                         <td className="px-6 py-3.5 whitespace-nowrap">
                           <button
-                            onClick={() => Navigate(`/rental/${rental._id}`)}
+                            onClick={() => navigate(`/rental/${rental._id}`)}
                             className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-primary-600 hover:bg-primary-50 transition-colors"
                             title="View details"
                           >

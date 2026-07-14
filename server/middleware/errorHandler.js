@@ -58,15 +58,6 @@ const handleValidationErrorDB = (err) => {
   return { message, statusCode: 400, isOperational: true };
 };
 
-// Handle JWT errors
-const handleJWTError = () => {
-  return { message: 'Invalid token. Please log in again.', statusCode: 401, isOperational: true };
-};
-
-const handleJWTExpiredError = () => {
-  return { message: 'Your token has expired. Please log in again.', statusCode: 401, isOperational: true };
-};
-
 // Global error handling middleware
 export const errorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -104,16 +95,6 @@ export const errorHandler = (err, req, res, next) => {
     
     if (err.name === 'ValidationError') {
       const handledError = handleValidationErrorDB(err);
-      error = { ...error, ...handledError };
-    }
-    
-    if (err.name === 'JsonWebTokenError') {
-      const handledError = handleJWTError();
-      error = { ...error, ...handledError };
-    }
-    
-    if (err.name === 'TokenExpiredError') {
-      const handledError = handleJWTExpiredError();
       error = { ...error, ...handledError };
     }
 

@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import useRentalHistoryStore from '../store/rentalHistoryStore';
 import { BarChart2 } from 'lucide-react';
-import { rental } from '../utils/cars';
+import { rental as Rental } from '../utils/cars';
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-function getYearRange(rentals: rental[]): number[] {
+function getYearRange(rentals: Rental[]): number[] {
   if (!rentals.length) return [new Date().getFullYear()];
   const years: number[] = rentals
-    .map((r: rental) => r.startDate ? new Date(r.startDate).getFullYear() : null)
+    .map((r: Rental) => r.startDate ? new Date(r.startDate).getFullYear() : null)
     .filter((y: number | null): y is number => y !== null);
   const min = Math.min(...years);
   const max = Math.max(...years);

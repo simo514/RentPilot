@@ -152,12 +152,8 @@ function RentalForm() {
       })(),
     };
 
-    // 🔸 Save to localStorage
-    localStorage.setItem('rentalSummary', JSON.stringify(rentalData));
-    localStorage.setItem('car', JSON.stringify(selectedCar));
-
-    // 🔸 Navigate to summary page
-    navigate('/rental-summary');
+    // 🔸 Navigate to summary page, passing data via router state
+    navigate('/rental-summary', { state: { rentalSummary: rentalData, car: selectedCar } });
   };
 
   return (

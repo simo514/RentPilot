@@ -3,20 +3,29 @@ import { PlusCircle, DollarSign, Calendar, Car, TrendingUp, ArrowRight } from 'l
 import useCarStore from '../store/carStore';
 import { useEffect, useState } from 'react';
 import api from '../lib/axios';
-import { rental } from '../utils/cars';
+import { Rental } from '../utils/cars';
 
 function Dashboard() {
   const { fetchCars, cars } = useCarStore();
-  const [recentRentals, setRecentRentals] = useState<rental[]>([]);
+  const [recentRentals, setRecentRentals] = useState<Rental[]>([]);
+  const [monthRentals, setMonthRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const recentResponse = await api.get('/api/rentals?limit=5&sort=-createdAt');
-        const recent = recentResponse.data.rentals || recentResponse.data;
-        setRecentRentals(recent);
+        // Two targeted queries: current-month stats + recent 5 for the table
+        const [recentRes, monthRes] = await Promise.all([
+          api.get('/api/rentals?limit=5&sort=-createdAt'),
+          api.get(`/api/rentals?month=${currentMonth}&year=${currentYear}`),
+        ]);
+        setRecentRentals(recentRes.data.rentals || recentRes.data);
+        setMonthRentals(monthRes.data.rentals || monthRes.data);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       } finally {
@@ -24,34 +33,23 @@ function Dashboard() {
       }
     };
     fetchDashboardData();
+  // currentMonth/currentYear are derived from `now` at render time — safe to omit
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     fetchCars();
   }, [fetchCars]);
 
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  const rentalsThisMonth = recentRentals.filter((rental: rental) => {
-    const startDate = rental.startDate ? new Date(rental.startDate) : null;
-    return (
-      startDate &&
-      startDate.getMonth() === currentMonth &&
-      startDate.getFullYear() === currentYear
-    );
-  });
-
-  const totalRevenue = rentalsThisMonth.reduce(
-    (sum: number, rental: rental) => sum + (typeof rental.totalPrice === 'number' ? rental.totalPrice : 0),
+  const totalRevenue = monthRentals.reduce(
+    (sum: number, r: Rental) => sum + (typeof r.totalPrice === 'number' ? r.totalPrice : 0),
     0
   );
 
   const stats = [
     {
       label: 'Rentals This Month',
-      value: rentalsThisMonth.length,
+      value: monthRentals.length,
       icon: Calendar,
       color: 'text-violet-600',
       bg: 'bg-violet-50',
@@ -65,7 +63,7 @@ function Dashboard() {
     },
     {
       label: 'Active Rentals',
-      value: recentRentals.filter((r: rental) => r.status === 'active').length,
+      value: monthRentals.filter((r: Rental) => r.status === 'active').length,
       icon: TrendingUp,
       color: 'text-primary-600',
       bg: 'bg-primary-50',
@@ -151,7 +149,7 @@ function Dashboard() {
                     </td>
                   </tr>
                 ) : (
-                  recentRentals.map((rental: rental) => (
+                  recentRentals.map((rental: Rental) => (
                     <tr key={rental._id} className="hover:bg-gray-50/60 transition-colors">
                       <td className="px-6 py-3.5 whitespace-nowrap">
                         <span className="text-sm font-medium text-gray-900">

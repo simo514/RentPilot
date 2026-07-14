@@ -9,4 +9,7 @@ const carSchema = new mongoose.Schema({
   image: String, // URL to the car image
 });
 
+// Index for fast available-car lookups (Cars page filters by available)
+carSchema.index({ available: 1 });
+
 export default mongoose.model('Car', carSchema);

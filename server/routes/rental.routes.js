@@ -2,6 +2,8 @@ import express from 'express';
 import rentalController from '../controllers/rental.controller.js';
 import { requireAuth } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
+import { validateRequest, parseMultipartData } from '../middleware/validateRequest.js';
+import { createRentalSchema } from '../validators/rental.validator.js';
 
 const router = express.Router();
 
@@ -81,6 +83,8 @@ router.post(
     { name: 'driverLicense', maxCount: 1 },
     { name: 'idCard', maxCount: 1 },
   ]),
+  parseMultipartData,
+  validateRequest(createRentalSchema),
   rentalController.createRental
 );
 

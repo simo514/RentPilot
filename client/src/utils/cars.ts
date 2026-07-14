@@ -7,7 +7,7 @@ export interface Car {
     image: string;
     available: boolean;
   }
-  export interface rental {
+  export interface Rental {
   _id: string;
   car: Car;
   client: Client;
@@ -22,6 +22,9 @@ export interface Car {
 
 }
 
+/** @deprecated use Rental */
+export type rental = Rental;
+
 export interface Document {
   name: string;
   image: string;
@@ -34,6 +37,33 @@ export interface Document {
     phone?: string;
     email?: string;
   }
+
+export interface RentalFormClient {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  email?: string;
+  dateOfBirth?: string;
+  address?: string;
+  nationality?: string;
+  clientID?: string;
+  licenceNumber?: string;
+  clientLicenseIssued?: string;
+}
+
+export interface RentalFormData {
+  client: RentalFormClient;
+  carId: string;
+  departureLocation: string;
+  returnLocation: string;
+  startDate: string;
+  endDate: string;
+  dailyRate: number;
+  totalPrice: number;
+  rentalDuration: number;
+  createdAt: string;
+  rentalAgreement?: string;
+}
 
   export interface RentalCreationData {
     client: {
@@ -48,3 +78,10 @@ export interface Document {
     dailyRate: number;
     rentalAgreement?: string;
   }
+
+export interface ContractTemplate {
+  _id: string;
+  html: string;
+  name?: string;
+  createdAt?: string;
+}

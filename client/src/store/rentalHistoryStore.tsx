@@ -1,21 +1,21 @@
 // src/store/rentalHistoryStore.js
 import { create } from 'zustand';
 import api from '../lib/axios';
-import { rental, RentalCreationData } from '../utils/cars';
+import { Rental, RentalCreationData, ContractTemplate } from '../utils/cars';
 import { toast } from 'react-toastify';
 
 
 // Define the store type
 interface rentalStore {
-  rentals: rental[];
+  rentals: Rental[];
   loading: boolean;
   error: string | null;
-  currentRental: rental | null;
+  currentRental: Rental | null;
   fetchRentals: (month?: number, year?: number) => Promise<void>;
   fetchRentalById: (id: string) => Promise<void>;
   returnCar: (id: string) => Promise<void>;
   createRental: (rentalData: RentalCreationData, files?: { driverLicense?: File; idCard?: File }) => Promise<void>;
-  getTemplate: () => Promise<any | null>;
+  getTemplate: () => Promise<ContractTemplate | null>;
 }
 
 const useRentalHistoryStore = create<rentalStore>((set) => ({
@@ -39,11 +39,10 @@ const useRentalHistoryStore = create<rentalStore>((set) => ({
         loading: false,
       }));
       toast.success(response.data.message || 'Rental created!');
-    } catch (error: any) {   
+    } catch (error: unknown) {   
       set({ error: error instanceof Error ? error.message : 'Failed to create rental', loading: false });
-      toast.error(
-        error?.response?.data?.message || 'Failed to create rental'
-      ); 
+      const axiosMsg = (error as any)?.response?.data?.message;
+      toast.error(axiosMsg || 'Failed to create rental'); 
     }
   },
 

@@ -1,5 +1,6 @@
-import { useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import type { Car, RentalFormData } from '../utils/cars';
 import { FileText, ArrowLeft, Check, Eye, Upload } from 'lucide-react';
 import { PDFViewer} from '@react-pdf/renderer';
 import useRentalHistoryStore from '../store/rentalHistoryStore'; // Import the store
@@ -9,7 +10,7 @@ import { toast } from 'react-toastify';
 import DOMPurify from 'dompurify';
 
 // Helper to format date as dd-mm-yyyy hh:mm for any ISO string
-function formatDateTime(val: any) {
+function formatDateTime(val: unknown): string {
   if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(val)) {
     const date = new Date(val);
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -21,33 +22,30 @@ function formatDateTime(val: any) {
     const minutes = pad(date.getMinutes());
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   }
-  return val;
+  return String(val ?? '');
 }
 
 function RentalSummary() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { createRental, getTemplate } = useRentalHistoryStore(); 
   const [showPDF, setShowPDF] = useState(false);
   const [showPreview, setShowPreview] = useState<string | null>(null);
-  const [rentalData, setRentalData] = useState<any>(null);
-  const [car, setCar] = useState<any>(null);
   const [templateHtml, setTemplateHtml] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [documentFiles, setDocumentFiles] = useState<{ driverLicense?: File; idCard?: File }>({});
 
-  useEffect(() => {
-    const storedData = localStorage.getItem('rentalSummary');
-    if (storedData) {
-      setRentalData(JSON.parse(storedData));
-    }
-    const cars = localStorage.getItem('car');
-    if (cars) {
-      setCar(JSON.parse(cars));
-    }
-  }, []);
+  const locationState = location.state as { rentalSummary: RentalFormData; car: Car } | null;
+  const [rentalData, setRentalData] = useState<RentalFormData | null>(locationState?.rentalSummary ?? null);
+  const [car] = useState<Car | null>(locationState?.car ?? null);
 
-  if (!rentalData) {
-    return <p>No rental data found.</p>;
+  if (!rentalData || !car) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-gray-500">No rental data found. Please fill the rental form first.</p>
+        <button className="btn-primary" onClick={() => navigate('/rentals/new')}>Go to Rental Form</button>
+      </div>
+    );
   }
 
   const handleFileUpload = (type: 'driverLicense' | 'idCard', file: File) => {
@@ -57,10 +55,20 @@ function RentalSummary() {
   const handlePreview = (type: 'driverLicense' | 'idCard') => {
     const file = documentFiles[type];
     if (file) {
+      // Revoke any existing object URL before creating a new one
+      if (showPreview) URL.revokeObjectURL(showPreview);
       const url = URL.createObjectURL(file);
       setShowPreview(url);
     }
   };
+
+  // Revoke object URL on unmount if a preview is still open
+  useEffect(() => {
+    return () => {
+      if (showPreview) URL.revokeObjectURL(showPreview);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleCreateRental = async () => {
     if (!documentFiles.driverLicense || !documentFiles.idCard) {
       toast.warn("Please upload both Driver's License and ID Card before proceeding.", { position: 'top-right' });
@@ -74,29 +82,30 @@ function RentalSummary() {
       const template = await getTemplate();
       if (template && template.html) {
         agreement = populateTemplate(template.html, rentalData, car);
-        setRentalData((prev: any) => ({
-          ...prev,
-          rentalAgreement: agreement,
-        }));
+        setRentalData((prev) => prev ? { ...prev, rentalAgreement: agreement } : prev);
       }
       await createRental(
         { ...rentalData, rentalAgreement: agreement },
         documentFiles
       );
       navigate('/rentals');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating rental:', error);
+      const message = error?.response?.data?.message || error?.message || 'Failed to create rental. Please try again.';
+      toast.error(message, { position: 'top-right' });
     } finally {
       setLoading(false); // Stop loading
     }
   };
 
   // Utility to replace {{field}} in template with value from data objects
-  function populateTemplate(template: string, rentalData: any, car: any) {
+  function populateTemplate(template: string, rentalData: RentalFormData, car: Car | null) {
     if (!template) return '';
     return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
       // Support nested keys like client.firstName
-      let value = key.split('.').reduce((obj: any, k: string) => (obj ? obj[k] : ''), { ...rentalData, car });
+      let value = key.split('.').reduce((obj: Record<string, unknown> | unknown, k: string) =>
+        obj && typeof obj === 'object' ? (obj as Record<string, unknown>)[k] : undefined,
+        { ...rentalData, car } as Record<string, unknown>);
       // Format any ISO date string
       value = formatDateTime(value);
       // Sanitize ONLY the individual values, not the whole template
@@ -132,10 +141,7 @@ function RentalSummary() {
       setShowPDF(false); // Hide PDF if open
 
       // Add the populated agreement to rentalData
-      setRentalData((prev: any) => ({
-        ...prev,
-        rentalAgreement: populatedHtml, // Save the populated HTML as rentalAgreement
-      }));
+      setRentalData((prev) => prev ? { ...prev, rentalAgreement: populatedHtml } : prev);
     } else {
       setTemplateHtml('<p>No template found.</p>');
     }

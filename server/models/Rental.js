@@ -37,4 +37,20 @@ const rentalSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// --- Indexes ---
+// Month/year range queries filter on startDate; also used in compound for list sort
+rentalSchema.index({ startDate: 1 });
+
+// Default list sort is -createdAt; index avoids in-memory sort on large collections
+rentalSchema.index({ createdAt: -1 });
+
+// Car-specific lookups (e.g. checking availability history, populate joins)
+rentalSchema.index({ car: 1 });
+
+// Status filtering (active vs completed) — low-cardinality but useful for dashboard counts
+rentalSchema.index({ status: 1 });
+
+// Compound: month/year range query + default sort in one index sweep
+rentalSchema.index({ startDate: 1, createdAt: -1 });
+
 export default mongoose.model('Rental', rentalSchema);

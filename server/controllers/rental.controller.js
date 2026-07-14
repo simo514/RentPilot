@@ -19,7 +19,7 @@ const rentalController = {
       totalPrice,
       rentalDuration,
       createdAt,
-    } = JSON.parse(req.body.data);
+    } = req.body;
 
     // Validate daily rate
     if (!dailyRate || dailyRate <= 0) {
@@ -93,7 +93,12 @@ const rentalController = {
 
   // 2. Get all rentals (with optional limit and sort)
   getAllRentals: catchAsync(async (req, res, next) => {
-    const { limit, sort = '-createdAt', month, year } = req.query;
+    const { limit, month, year } = req.query;
+
+    // Whitelist allowed sort values to prevent arbitrary query injection
+    const ALLOWED_SORTS = ['-createdAt', 'createdAt', '-startDate', 'startDate', '-totalPrice', 'totalPrice'];
+    const requestedSort = req.query.sort;
+    const sort = ALLOWED_SORTS.includes(requestedSort) ? requestedSort : '-createdAt';
     
     let filter = {};
     
@@ -115,7 +120,7 @@ const rentalController = {
     
     let query = Rental.find(filter)
      .populate('car', 'make model matricule')
-     .select('client.firstName client.lastName car startDate endDate status _id'); 
+     .select('client.firstName client.lastName car startDate endDate status totalPrice _id'); 
 
     
     // Apply sorting (default: newest first)
